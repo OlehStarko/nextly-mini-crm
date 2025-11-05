@@ -1,0 +1,15 @@
+/* from appt-inline-styles */
+.btn-group .btn { padding:8px 10px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer; }
+    .btn-group { display:inline-flex; gap:6px; }
+    .btn-group .btn.active { background:#f0f0f0; }
+
+
+/* from appt-status-dot-styles */
+.status-dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; flex:0 0 10px; }
+    .status-scheduled { background:#F59E0B; }
+    .status-done      { background:#10B981; }
+    .status-canceled  { background:#EF4444; }
+
+
+/* from appt-status-filters-styles */
+.status-filters input{transform:translateY(1px)}

@@ -1,0 +1,57 @@
+/* from auth-css */
+.auth-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 160px);
+    }
+    .auth-box {
+      width: 100%;
+      max-width: 360px;
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    h2 { text-align: center; margin-bottom: 20px; font-weight: 600; }
+    .field { margin-bottom: 14px; display: flex; flex-direction: column; }
+    label { font-weight: 500; margin-bottom: 4px; }
+    input {
+      padding: 16px 32px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      
+      font-size: 14px;
+      font-family: inherit;
+    }
+    button {
+      width: auto;
+      max-height: 64px;
+      padding: 16px 32px;
+      background: #1B1B1B;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+      max-height: 64px;
+    }
+ .unpaid { background: #ec6060; }
+ .paid { background: #59a85d; }
+    button:hover { background: #3A3A3A; }
+    .toggle {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .toggle a {
+      color: #0077cc;
+      text-decoration: none;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+    .toggle a:hover { text-decoration: underline; }
+    .hidden { display: none; }

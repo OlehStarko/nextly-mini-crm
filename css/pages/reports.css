@@ -1,0 +1,10 @@
+/* from reports-inline */
+.kpi{border:1px solid #eee;border-radius:12px;padding:10px;min-width:140px}
+    .kpi .v{font-size:20px;font-weight:700}
+    table.fin{width:100%;border-collapse:collapse;padding: 14px 18px;
+      border-radius: 16px;
+      background:#fff;
+      border:1px solid #e9eef5;
+      box-shadow: 0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);}
+    table.fin th,table.fin td{border:1px solid #eee;padding:8px;text-align:left}
+    table.fin th{background:#fafafa}

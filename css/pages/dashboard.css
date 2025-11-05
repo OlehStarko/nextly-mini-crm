@@ -1,0 +1,176 @@
+/* ============ KPI блоки ============ */
+.kpi-wrap{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:16px;
+  margin:24px 0 32px;
+}
+@media (max-width:1024px){ .kpi-wrap{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:640px){  .kpi-wrap{ grid-template-columns:1fr; } }
+
+.kpi-pill{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:24px; min-height:96px;
+  border-radius:16px; background:#fff; border:1px solid #e9eef5;
+  box-shadow:0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);
+}
+.kpi-left{ display:flex; align-items:center; gap:24px; min-width:0; }
+.kpi-ico{ width:32px; height:32px; display:grid; place-items:center; flex:0 0 auto; }
+.kpi-label{ font-weight:600; color:#384152; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.kpi-value{ font-weight:700; color:#111827; margin-left:12px; }
+
+.h3{ font-size:18px; font-weight:700; margin:16px 0 10px; }
+
+/* ============ Карти та рядки списку ============ */
+.card{
+  background:#fff; border:1px solid #eee; border-radius:16px; padding:24px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  transition:box-shadow .3s ease, transform .2s ease;
+}
+
+.row{
+  display:flex; justify-content:space-between; align-items:center;
+  border:1px solid #eee; border-radius:16px; padding:16px 24px;
+  background:#fff; transition:background .2s ease;
+}
+.row:hover{ background:#EFF7FA; }
+.row small{ color:#666; }
+
+/* ============ Статуси ============ */
+.status-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:middle; }
+.scheduled{ background:#fb923c; } /* оранжевий */
+.done{      background:#22c55e; } /* зелений */
+.canceled{  background:#ef4444; } /* червоний */
+
+/* ============ Бейджі ============ */
+.badge{
+  display:inline-block; padding:10px 16px; border-radius:12px;
+  font-size:12px; font-weight:500; color:#fff; margin-top:10px;
+}
+.paid{   background:#59a85d; }
+.unpaid{ background:#ec6060; }
+
+.badge-soft{ color:#1f2937; background:#eef2ff; }
+.paid-soft{  background:#e8f5e9; color:#1b5e20; }
+.unpaid-soft{ background:#ec6060; color:#fff; }
+
+/* ============ Навігація всередині контенту ============ */
+nav a.active{ color:#000; font-weight:600; }
+
+/* ============ Мобільні дрібні правки контенту ============ */
+@media (max-width:768px){
+  .cards-summary{ flex-direction:column; gap:8px; }
+  .dashboard{ padding:12px; }
+}
+/* === Calendar Strip (100px) === */
+.calendar-strip {
+  background:#fff; border:1px solid #eee; border-radius:16px;
+  padding:24px;  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  display:flex; flex-direction:column; gap:8px; overflow:hidden;margin-bottom: 32px;
+}
+.calendar-strip__head {
+  display:flex; align-items:center; justify-content:space-between;
+}
+.calendar-strip__title {
+  font-weight:700; font-size:14px; color:#111827;
+}
+.calendar-strip__nav {
+  display:flex; gap:6px;
+}
+
+/* --- Контейнер календаря --- */
+.calendar-strip__days {
+  display: flex;
+  gap: 12px;
+  padding: 12px 24px;
+  overflow: visible; /* 👈 дозволяє бейджам виступати */
+}
+
+.calendar-strip__days::-webkit-scrollbar { display:none; }
+/* --- Кнопка дня календаря --- */
+/* --- Картка дня --- */
+.cal-day {
+  position: relative;
+  overflow: visible; /* 👈 не обрізає бейдж */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  background: #f7fafc;
+  color: #111;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* --- Активний день --- */
+.cal-day--active {
+  background: #111;
+  color: #fff;
+}
+
+
+
+/* --- Зелений бейдж кількості задач --- */
+.cal-day__count{
+  position:absolute; top:-7px; right:-7px;
+  width:22px; height:22px; border-radius:50%;
+  background:#34A853; color:#fff; font-weight:600; font-size:12px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 6px rgba(0,0,0,.2);
+  pointer-events:none; z-index:3;
+}
+
+
+/* перебиваємо можливі попередні правила */
+.cal-day--active .cal-day__count{
+  background:#34A853 !important;
+  color:#fff !important;
+}
+
+
+.cal-day:hover .cal-day__num {
+  color: #fff;
+}
+.cal-day:hover { transform:translateY(-1px); background:#171717; }
+.cal-day__dow { font-size:10px; color:#6b7280; text-transform:uppercase; letter-spacing:.2px; }
+.cal-day__num { font-size:16px; font-weight:700; color:#111827; line-height:1; }
+
+
+.cal-day--today   { border-color:#111; }
+.cal-day--active  { background:#111; border-color:#111; }
+.cal-day--active .cal-day__dow,
+.cal-day--active .cal-day__num,
+.cal-day--active .cal-day__count { color:#fff; background:transparent; }
+/* UX-полірування стрічки */
+.calendar-strip__days{ scroll-snap-type:x mandatory; }
+.cal-day{ scroll-snap-align:start; }
+.cal-day--active{ box-shadow:0 6px 18px rgba(0,0,0,.08); }
+.calendar-strip__nav{
+  display:flex; gap:12px; align-items:center;
+}
+
+/* Кнопка 32x32, клікабельна по всій площі */
+.calendar-strip__btn{
+  position:relative;
+  width:32px; height:32px;
+  background:none; border:none; padding:0; margin:0;
+  cursor:pointer; border-radius:8px;
+  display:inline-flex; align-items:center; justify-content:center;
+  color:#171717;                        /* <- базовий колір іконки */
+  transition:background .2s, transform .2s, color .2s;
+}
+.calendar-strip__btn::before{
+  content:""; position:absolute; inset:0; border-radius:8px;
+}
+
+.calendar-strip__btn:hover{ background:#171717; color:#fff; transform:scale(1.05); }
+.calendar-strip__btn:active{ transform:scale(0.95); }
+
+.cal-icon{
+  width:100%; height:100%;
+  display:block;
+  pointer-events:none;                  /* події ловить кнопка */
+}

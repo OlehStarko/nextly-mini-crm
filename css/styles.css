@@ -1,0 +1,188 @@
+:root{
+  --bg:#F4F9FD; --fg:#111; --muted:#666; --b:#e8e8e8; --primary:#111;
+   --topbar-h: 64px; 
+}
+
+/* фікс тільки для мобільних, де хедер fixed */
+@media (max-width: 899px){
+  main#app { padding-top: calc(var(--topbar-h) + 12px); }
+}
+/* ================= Base / Typography ================= */
+html, body{
+  font-family:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight:500; color:#111827; letter-spacing:-0.2px;
+  background-color:#EFF7FA; margin:0;
+}
+*{ box-sizing:border-box; }
+body{ font-size:15px; line-height:1.5; letter-spacing:0.2px; }
+button, input, select, textarea{ font-family:inherit; }
+
+/* ================= Layout ================= */
+main#app{ flex:1 0 auto; width:100%; max-width:1200px; margin:0 auto; padding:16px; }
+@media (max-width:1024px){ main#app{ max-width:960px; padding:12px; } }
+@media (max-width:768px){  main#app{ max-width:600px; padding:10px; margin-top: 64px;} }
+@media (max-width:480px){  main#app{ max-width:100%; padding:8px; } }
+
+.container{ max-width:980px; margin:20px auto; padding:0 16px; }
+.section{ padding:16px; }
+
+/* ================= Buttons / Inputs ================= */
+.btn, button{
+  appearance:none; padding:14px 18px; border-radius:16px; background:#fff;
+  border:1px solid #e9eef5; cursor:pointer;
+}
+.btn:hover, button:hover{ background:#f6f6f6; }
+input, select{
+  padding:14px 18px; border-radius:16px; background:#fff; min-height:36px;
+  border:1px solid #e9eef5;
+  box-shadow:0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);
+}
+
+/* ================= Lists / Grid ================= */
+.grid{ display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); }
+.list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.list li{
+  display:grid; grid-template-columns:1fr auto; gap:10px; padding:14px 18px; border-radius:16px; background:#fff;
+  border:1px solid #e9eef5;
+  box-shadow:0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);
+}
+.badge{ display:inline-flex; align-items:center; gap:6px; background:#f6f6f6; border:1px solid #eee; padding:4px 8px; border-radius:999px; font-size:12px; color:#444; }
+
+/* ================= Modal ================= */
+.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; }
+.modal.open{ display:flex; }
+.modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); }
+.modal__dialog{
+  position:relative; z-index:1; width:100%; max-width:560px; background:#fff; border:1px solid #eee; border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.12); padding:16px;
+}
+.modal__header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.modal__title{ font-size:18px; font-weight:600; }
+.modal__body{ display:grid; gap:10px; }
+.modal__actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+.modal__close{ background:#f6f6f6; border:1px solid #e5e5e5; }
+
+/* ================= Avatars ================= */
+.avatar{ width:40px; height:40px; border-radius:50%; object-fit:cover; border:1px solid #eee; background:#f5f5f5; }
+.avatar--sm{ width:32px; height:32px; }
+.avatar__fallback,
+.user-badge .avatar{
+  width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:#1B1B1B; color:#fff; font-weight:600; font-size:12px; text-transform:uppercase;
+}
+.user-badge{ display:flex; align-items:center; gap:.6rem; font-weight:500; }
+.username{ font-weight:500; color:#333; }
+#logout{ margin-left:.8rem; color:#666; text-decoration:none; font-size:.9rem; }
+#logout:hover{ text-decoration:underline; }
+
+/* ===================================================================== */
+/* ================= Header: brand | nav | user | burger ================= */
+/* ===================================================================== */
+.topbar{
+  display:grid;
+  grid-template-columns:auto 1fr auto auto;
+  grid-template-areas:"brand nav user burger";
+  align-items:center; gap:12px;
+  height:64px; padding:0 16px;
+  border-bottom:1px solid #eee;
+  z-index:1000;
+}
+.nav-left   { grid-area:brand; display:flex; align-items:center; gap:8px; }
+.nav-center { grid-area:nav;   display:flex; gap:24px; align-items:center; justify-content:center; }
+.nav-right  { grid-area:user;  display:flex; align-items:center; gap:12px; justify-content:flex-end; }
+.burger     { grid-area:burger; justify-self:end; }
+
+.brand{ display:flex; align-items:center; gap:10px; }
+.logo{ width:48px; height:48px; object-fit:contain; }
+.app-name{ font-weight:700; letter-spacing:-0.3px; color:#222; }
+
+.nav-center a{
+  color:#171717; text-decoration:none; font-weight:500; padding:8px 0;
+}
+.nav-center a.active{ color:#000; border-bottom:2px solid #000; }
+
+/* Burger button (uses img icons inside) */
+.burger{
+  width:40px; height:40px; border:none; background:none; padding:6px; cursor:pointer;
+  display:none; align-items:center; justify-content:center;
+}
+.burger:hover{ background:rgba(0,0,0,.06); }
+.burger:active{ transform:scale(.96); }
+.burger-icon{ width:24px; height:24px; }
+.burger-close{ display:none; }
+.burger.is-open .burger-open{ display:none; }
+.burger.is-open .burger-close{ display:block; }
+
+/* ================= Desktop (>=900px) ================= */
+@media (min-width:900px){
+  .burger{ display:none !important; }
+  .nav-center{ position:static; transform:none; }
+  .nav-right{ display:flex !important; }
+}
+
+/* ================= Mobile (<=899px): FULLSCREEN MENU ================= */
+@media (max-width:899px){
+  /* фіксуємо верхню панель і піднімаємо логотип/бургер над меню */
+  .topbar{
+    position:fixed; top:0; left:0; width:100%;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 20px; background:transparent; z-index:1200;
+  }
+  .brand, .burger{ position:relative; z-index:1201; }
+  .logo{ width:28px; height:28px; }
+
+  /* правий блок на мобільному не показуємо (є копія в меню за потреби) */
+  .nav-right{ display:none !important; }
+
+  /* повноекранне меню */
+  .nav-center{
+    position:fixed !important; inset:0 !important;
+    width:100vw !important; height:100dvh !important;
+    background:#fff; z-index:1100;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:32px;
+    padding:100px 16px 24px; /* 100px зверху, щоб не лягало під хедер */
+    margin:0; border:0; border-radius:0; box-shadow:none; overflow:auto;
+
+    transform:translateY(-100%); opacity:0; pointer-events:none;
+    transition:transform .35s ease, opacity .35s ease;
+  }
+  .nav-center.open{ transform:translateY(0); opacity:1; pointer-events:auto; }
+
+  /* затемнення фону */
+  .mobile-scrim{
+    position:fixed; inset:0; background:rgba(0,0,0,.5);
+    z-index:1099; opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  .mobile-scrim.show{ opacity:1; pointer-events:auto; }
+
+  /* великі, зручні посилання */
+  .nav-center a{ font-size:22px; line-height:1; font-weight:700; color:#111; }
+  .nav-center a.active{ text-decoration:underline; }
+
+  /* блокуємо скрол фону, коли меню відкрите */
+  body.nav-open{ overflow:hidden; touch-action:none; }
+
+  /* показуємо бургер */
+  .burger{ display:flex !important; }
+}
+
+/* ================= Footer ================= */
+.footer{
+  flex-shrink:0; border-top:1px solid #e8e8e8; background:#fafafa; padding:12px 16px; font-size:14px; color:#555;
+  display:flex; justify-content:center; position:sticky; bottom:0; z-index:5;
+}
+.footer-content{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; width:100%; max-width:1200px; }
+.footer-left{ font-weight:500; }
+.footer-right a{ color:#0077cc; text-decoration:none; margin-left:12px; }
+.footer-right a:hover{ text-decoration:underline; }
+@media (max-width:720px){
+  .footer-content{ flex-direction:column; align-items:center; text-align:center; gap:6px; }
+  .footer-right a{ margin:0 8px; }
+}
+
+/* Мобільний блок користувача (всередині меню) — за замовчуванням приховано */
+.nav-user-mobile{ display:none; }
+@media (max-width:899px){ .nav-user-mobile{ display:block; } }
+@media (min-width:900px){
+  .nav-user-mobile{ display:none !important; }
+}
