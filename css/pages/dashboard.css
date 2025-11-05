@@ -79,51 +79,66 @@ nav a.active{ color:#000; font-weight:600; }
 }
 
 /* --- Контейнер календаря --- */
-.calendar-strip__days {
+/* стрічка днів: горизонтальний скрол + інерція + без виділення тексту */
+
+
+
+/* --- Контейнер смужки днів: flex-ряд, без переносу, з горизонтальним скролом --- */
+.calendar-strip__days{
   display: flex;
+  flex-wrap: nowrap;          /* НЕ переносимо картки в новий ряд */
+  align-items: center;
   gap: 12px;
   padding: 12px 24px;
-  overflow: visible; /* 👈 дозволяє бейджам виступати */
+
+  overflow-x: auto;           /* горизонтальний скрол */
+  overflow-y: visible;        /* щоб бейджі могли виступати */
+  scroll-behavior: smooth;    /* плавність прокрутки */
+  -webkit-overflow-scrolling: touch;
+  cursor: grab;               /* при drag */
 }
 
-.calendar-strip__days::-webkit-scrollbar { display:none; }
-/* --- Кнопка дня календаря --- */
+/* під час drag – інший курсор і відключення виділення */
+.calendar-strip__days.dragging{
+  cursor: grabbing;
+  user-select: none;
+}
+
+/* ховаємо скролбар */
+.calendar-strip__days::-webkit-scrollbar{ display:none; }
+.calendar-strip__days{ scrollbar-width: none; }
+
+/* бейдж не перехоплює кліки */
+.cal-day__count{ pointer-events: none; }
+
 /* --- Картка дня --- */
-.cal-day {
+.cal-day{
   position: relative;
-  overflow: visible; /* 👈 не обрізає бейдж */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
+  overflow: visible;                 /* бейдж виступає назовні */
+  flex: 0 0 auto;                    /* фіксована ширина, не стискаємо */
+  width: 64px; height: 64px;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
   background: #f7fafc;
-  color: #111;
-  transition: background 0.2s ease, color 0.2s ease;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: background .2s, color .2s, border-color .2s;
+  pointer-events: auto;
 }
 
-/* --- Активний день --- */
-.cal-day--active {
-  background: #111;
-  color: #fff;
-}
+/* активний день */
+.cal-day--active{ background:#111; color:#fff; }
 
 
-
-/* --- Зелений бейдж кількості задач --- */
+/* бейдж кількості (виступає за межі) */
 .cal-day__count{
   position:absolute; top:-7px; right:-7px;
   width:22px; height:22px; border-radius:50%;
   background:#34A853; color:#fff; font-weight:600; font-size:12px;
   display:flex; align-items:center; justify-content:center;
   box-shadow:0 3px 6px rgba(0,0,0,.2);
-  pointer-events:none; z-index:3;
+  z-index:3;
+  pointer-events: none; 
 }
-
-
 /* перебиваємо можливі попередні правила */
 .cal-day--active .cal-day__count{
   background:#34A853 !important;

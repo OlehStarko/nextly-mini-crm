@@ -49,15 +49,35 @@ function router() {
     localStorage.setItem('lastRoute', location.hash.replace('#', ''));
   }
 
-  // Отримуємо елементи (нові селектори)
-  const userInfo = document.getElementById('userInfo');     // права зона з іменем/виходом
+  // Елементи хедера
+  const userInfo = document.getElementById('userInfo'); // права зона з іменем/виходом
   const footer   = document.querySelector('.footer');
-  const navEl    = document.getElementById('nav');           // центральне меню (оф-канвас на мобільному)
+  const navEl    = document.getElementById('nav');      // центральне меню
+  const burger   = document.getElementById('burger');
+  const scrim    = document.getElementById('scrim');
+
+  // Хелпер: закрити бургер/оф-канвас, якщо відкритий
+  const closeBurger = () => {
+    navEl?.classList.remove('open');
+    burger?.classList.remove('is-open');
+    scrim?.classList.remove('show');
+    document.body.classList.remove('nav-open');
+    burger?.setAttribute('aria-expanded', 'false');
+  };
+
+  // Хелпер: підсвітити активний пункт меню
+  const setActiveNavLink = () => {
+    if (!navEl) return;
+    const current = (location.hash || '#/dashboard').replace('#', '') || '/dashboard';
+    navEl.querySelectorAll('a').forEach(a => {
+      const isActive = a.getAttribute('href') === `#${current}`;
+      a.classList.toggle('active', isActive);
+    });
+  };
 
   // --- 🔹 Вигляд для авторизованих ---
   if (isAuthed) {
-    // показуємо меню, якщо є
-    if (navEl) navEl.style.display = ''; // даємо стилям керувати (flex у десктоп)
+    if (navEl) navEl.style.display = ''; // даємо стилям керувати
 
     const displayName = s.user.displayName || s.user.email || 'User';
     const initials = displayName
@@ -75,12 +95,10 @@ function router() {
         </div>
       `;
 
-      // Обробник виходу
       userInfo.querySelector('#logout')?.addEventListener('click', async (e) => {
         e.preventDefault();
         try { await signOutAll(); } catch (_) {}
         location.hash = '/auth';
-        // підстрахуємо ререндер:
         setTimeout(router, 0);
       });
     }
@@ -95,11 +113,16 @@ function router() {
 
   // --- 🔹 Вигляд для неавторизованих ---
   } else {
-    if (navEl) navEl.style.display = 'none'; // ховаємо меню
+    if (navEl) navEl.style.display = 'none';
     if (userInfo) userInfo.innerHTML = '';
     if (footer) footer.textContent = 'Nextly — авторизуйтесь, щоб працювати із даними';
   }
+
+  // після рендера: підсвічуємо активний пункт і закриваємо бургер (якщо був відкритий)
+  setActiveNavLink();
+  closeBurger();
 }
+
 
 window.addEventListener('hashchange', router);
 window.addEventListener('load', async () => {
@@ -120,77 +143,36 @@ window.addEventListener('load', async () => {
 
 document.addEventListener('DOMContentLoaded', () => {
   const burger = document.getElementById('burger');
-  const nav    = document.getElementById('nav');
-  const scrim  = document.getElementById('scrim');
+  const nav    = document.getElementById('nav');        // <nav class="nav-center" id="nav">
+  const scrim  = document.getElementById('scrim');      // <div id="scrim" class="mobile-scrim">
 
-  if (!burger || !nav || !scrim) return;
-
-  function openNav() {
-    // вмикаємо анімацію лише для інтеракції
-    nav.classList.add('animate');
-    scrim.classList.add('animate');
-
-    burger.classList.add('is-open');
-    nav.classList.add('open');
-    scrim.classList.add('open');
-    burger.setAttribute('aria-expanded', 'true');
-    document.body.classList.add('nav-open');
+  function setNavOpen(open) {
+    burger.classList.toggle('is-open', open);
+    nav.classList.toggle('open', open);     // CSS: .nav-center.open { ... }
+    scrim?.classList.toggle('show', open);  // CSS: .mobile-scrim.show { ... }
+    document.body.classList.toggle('nav-open', open);
+    burger.setAttribute('aria-expanded', String(open));
   }
 
-  function closeNav() {
-    nav.classList.add('animate');
-    scrim.classList.add('animate');
+  // Клік по бургеру — toggle
+  burger?.addEventListener('click', () => {
+    setNavOpen(!nav.classList.contains('open'));
+  });
 
-    burger.classList.remove('is-open');
-    nav.classList.remove('open');
-    scrim.classList.remove('open');
-    burger.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('nav-open');
-  }
+  // Клік по затемненню — закрити
+  scrim?.addEventListener('click', () => setNavOpen(false));
 
-  function toggleNav() {
-    const isOpen = nav.classList.contains('open');
-    isOpen ? closeNav() : openNav();
+  // Клік по будь-якому пункту меню — закрити і дати перейти
+  nav?.addEventListener('click', (e) => {
+    const a = e.target.closest('a');
+    if (a) setNavOpen(false);
+  });
 
-    // забираємо .animate після завершення кадру, щоб при ресайзі не було анімацій
-    requestAnimationFrame(() => {
-      nav.classList.remove('animate');
-      scrim.classList.remove('animate');
-    });
-  }
-
-  burger.addEventListener('click', toggleNav);
-  scrim.addEventListener('click', closeNav);
-  nav.addEventListener('click', e => { if (e.target.tagName === 'A') closeNav(); });
-
-  // 🔒 ресайз/брейкпоінт — завжди закрито і БЕЗ анімацій
-  const mq = window.matchMedia('(max-width: 899px)');
-  function syncOnBreakpoint() {
-    // прибираємо ознаки відкритого меню
-    burger.classList.remove('is-open');
-    nav.classList.remove('open', 'animate');
-    scrim.classList.remove('open', 'animate');
-    burger.setAttribute('aria-expanded', 'false');
-    document.body.classList.remove('nav-open');
-  }
-  mq.addEventListener ? mq.addEventListener('change', syncOnBreakpoint)
-                      : mq.addListener(syncOnBreakpoint);
-  window.addEventListener('resize', syncOnBreakpoint);
+  // Будь-яка зміна маршруту (#/...) — меню закриваємо
+  window.addEventListener('hashchange', () => setNavOpen(false));
 });
 
-const burger = document.getElementById('burger');
-const nav    = document.getElementById('nav');
-const scrim  = document.getElementById('scrim');
-
-function toggleNav(open){
-  nav.classList.toggle('open', open);
-  burger.classList.toggle('is-open', open);
-  scrim.classList.toggle('show', open);
-  document.body.classList.toggle('nav-open', open);
-  burger.setAttribute('aria-expanded', String(open));
-}
-
-burger.addEventListener('click', () => {
-  toggleNav(!nav.classList.contains('open'));
+let t; window.addEventListener('resize', () => {
+  document.documentElement.classList.add('resizing');
+  clearTimeout(t); t = setTimeout(()=>document.documentElement.classList.remove('resizing'), 250);
 });
-scrim.addEventListener('click', () => toggleNav(false));
