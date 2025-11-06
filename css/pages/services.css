@@ -4,7 +4,7 @@
     .toolbar{ display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:10px; }
     .toolbar .left, .toolbar .right{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 
-    .btn{ padding:8px 10px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer; }
+    
     .btn.primary{ background:#2563eb; color:#fff; border-color:#1e40af; }
     .search{ max-width:280px; width:100%; }
     input[type="text"], input[type="number"], select{ width:100%; padding:8px 10px; border:1px solid #e5e7eb; border-radius:8px; }

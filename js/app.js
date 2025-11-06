@@ -103,13 +103,7 @@ function router() {
       });
     }
 
-    if (footer) {
-      footer.innerHTML = `
-        <a href="#/privacy">Політика конфіденційності</a> ·
-        <a href="#/terms">Умови користування</a> ·
-        <a href="#/contact">Контакти</a>
-      `;
-    }
+    
 
   // --- 🔹 Вигляд для неавторизованих ---
   } else {
@@ -123,7 +117,35 @@ function router() {
   closeBurger();
 }
 
+// Повертає правильну розмітку футера
+function buildFooterHTML() {
+  return `
+    <div class="footer-content">
+      <div class="footer-left">© 2025 Mini CRM. Усі права захищені.</div>
+     
+    </div>`;
+}
 
+// 1) Разове «виправлення», якщо вже затирали
+(function fixFooterOnce() {
+  const f = document.getElementById('appFooter');
+  if (!f) return;
+  if (!f.querySelector('.footer-content')) {
+    f.innerHTML = buildFooterHTML();
+  }
+})();
+
+// 2) Захист від подальших перезаписів (якщо якийсь скрипт знову спробує)
+(function protectFooter() {
+  const f = document.getElementById('appFooter');
+  if (!f) return;
+  const obs = new MutationObserver(() => {
+    if (!f.querySelector('.footer-content')) {
+      f.innerHTML = buildFooterHTML();
+    }
+  });
+  obs.observe(f, { childList: true, subtree: false });
+})();
 window.addEventListener('hashchange', router);
 window.addEventListener('load', async () => {
   await initSession();
@@ -176,3 +198,18 @@ let t; window.addEventListener('resize', () => {
   document.documentElement.classList.add('resizing');
   clearTimeout(t); t = setTimeout(()=>document.documentElement.classList.remove('resizing'), 250);
 });
+
+// Прибрати випадковий "низовий" блок, якщо він не є нашим <footer>
+function removeLegacyLegalBlock() {
+  const candidate = document.body.lastElementChild;
+  if (
+    candidate &&
+    candidate.tagName !== 'FOOTER' &&
+    /Політика конфіденційності|Умови користування|Контакти/i.test(candidate.textContent || '')
+  ) {
+    candidate.remove();
+  }
+}
+document.addEventListener('DOMContentLoaded', removeLegacyLegalBlock);
+// на SPA ще корисно після кожного роут-рендера
+setTimeout(removeLegacyLegalBlock, 0);
