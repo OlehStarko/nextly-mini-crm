@@ -121,8 +121,22 @@ input, select{
   -webkit-overflow-scrolling: touch;
   margin: 0;
   border-radius: 20px;
-  background: #fff;
+  background: #fff; 
   z-index: 1;
+}
+.modal input,
+.modal select,
+.modal textarea {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100%;
+}
+/* Запобігає авто-зуму в iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .modal input,
+  .modal select,
+  .modal textarea {
+    font-size: 16px;
+  }
 }
 /* На мобільних — ті самі поля, що і контент */
 .modal-open { overflow: hidden; }
