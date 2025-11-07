@@ -125,6 +125,7 @@ input, select{
   z-index: 1;
 }
 /* На мобільних — ті самі поля, що і контент */
+.modal-open { overflow: hidden; }
 @media (max-width: 600px) {
   .modal {
     padding-inline: 16px; /* створює відступи зліва/справа */
