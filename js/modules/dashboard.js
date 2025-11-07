@@ -700,3 +700,29 @@ function iconCheck() {
 document.addEventListener('focusout', () => {
   setTimeout(() => { void document.body.offsetHeight; }, 120);
 }, true);
+
+/* iOS/Safari: під час фокусу в модалці фіксуємо body, щоб не «їхав» лейаут.
+   Використовуємо делегування, бо модалка створюється динамічно. */
+document.addEventListener('focusin', (e) => {
+  if (e.target.closest('#editApptModal.open')) {
+    document.body.style.position = 'fixed';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+  }
+});
+
+document.addEventListener('focusout', (e) => {
+  if (e.target.closest('#editApptModal')) {
+    // Відновлюємо тільки коли фокус пішов З МОДАЛКИ
+    setTimeout(() => {
+      const ae = document.activeElement;
+      if (!ae || !ae.closest('#editApptModal')) {
+        document.body.style.position = '';
+        document.body.style.left = '';
+        document.body.style.right = '';
+        document.body.style.width = '';
+      }
+    }, 0);
+  }
+});
