@@ -470,6 +470,26 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
   }
 
   function openEditModal(appt) {
+    // --- Фікс Safari tap-bug для кнопки ✕ ---
+const closeBtn = document.getElementById('editApptClose');
+if (closeBtn) {
+  closeBtn.addEventListener('click', (e) => {
+    e.preventDefault();      // не дає події піти вище
+    e.stopPropagation();     // блокує "клік крізь" модалку
+
+    // знімаємо фокус із активного інпута — це сховає клавіатуру
+    try { document.activeElement?.blur(); } catch(_) {}
+
+    // тепер безпечно закриваємо модалку
+    closeEditModal();
+
+    // додатково — трохи зачекаємо й «підштовхнемо» Safari оновити layout
+    setTimeout(() => {
+      void document.body.offsetHeight; // форс-рефлоу
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' || 'auto' });
+    }, 120);
+  });
+}
     ensureEditModal();
     editingAppt = appt;
 
@@ -512,6 +532,15 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
     document.getElementById('editPaid').checked  = !!appt.paid;
 
     document.getElementById('editApptModal').classList.add('open');
+    document.documentElement.classList.add('html-kb-open'); // вимикає анімації на час вводу
+document.body.classList.add('modal-open');              // якщо блокуєш скрол бody десь у CSS
+
+// сфокусуємо перше поле без автоскролу
+try { document.getElementById('editClientSel')?.focus({ preventScroll:true }); } catch(_) {}
+
+// невелика «підштовхуюча» прокрутка, щоб Safari оновив хіт-тести
+requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' || 'auto' }); });
+
   }
 
   (function wireEditModal(){
@@ -558,6 +587,11 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
       }
 
       closeEditModal();
+      document.documentElement.classList.remove('html-kb-open');
+document.body.classList.remove('modal-open');
+// форс-перемальовка після закриття клавіатури
+setTimeout(() => { void document.body.offsetHeight; window.scrollTo({ top:0, left:0, behavior:'instant' || 'auto' }); }, 120);
+
       renderListForSelectedDay();
     } catch (err) {
       console.error('Update failed:', err);
@@ -707,3 +741,9 @@ function iconCheck(){ return `<svg width="32" height="32" viewBox="0 0 32 32" fi
 `; }
 // (іконка edit — за бажання повернеш)
 // const ICON_EDIT = `<img src="./icons/edit.svg" alt="edit" width="18" height="18" style="display:block">`;
+// Коли інпут втрачає фокус і клавіатура ховається — підштовхнемо Safari перемалюватись
+document.addEventListener('focusout', () => {
+  setTimeout(() => {
+    void document.body.offsetHeight; // рефлоу
+  }, 120);
+}, true);
