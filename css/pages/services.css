@@ -17,7 +17,7 @@
     .modal{ position:fixed; inset:0; display:none; }
     .modal.open{ display:block; }
     .modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.4); }
-    .modal__dialog{ position:relative; max-width:520px; margin:8vh auto; background:#fff; border-radius:12px; overflow:hidden; }
+    .modal__dialog{ position:relative; max-width:520px; margin:12vh auto; background:#fff; border-radius:12px; overflow:hidden; }
     .modal__header{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #eee; }
     .modal__title{ font-weight:700; }
     .modal__body{ padding:14px; display:grid; gap:12px; }

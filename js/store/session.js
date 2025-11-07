@@ -57,17 +57,22 @@ function updateHeaderAuthUI(user) {
 
 // ---------- ініціалізація відстеження стану auth ----------
 export async function initSession() {
-  const { auth, onAuthStateChanged } = await fb();
+  const { auth, onAuthStateChanged, getRedirectResult } = await fb();
 
-  // якщо хедер уже в DOM — позначаємо, що чекаємо на auth
+  // позначимо pending для хедера, якщо він уже в DOM
   document.querySelector('.nav-right')?.setAttribute('data-auth', 'pending');
 
+  // 1) якщо був Google-редірект – тихо доберемо результат (Chrome Mobile кейс)
+  try { await getRedirectResult(auth); } catch (e) { console.warn(e); }
+
+  // 2) слухаємо зміну авторизації
   onAuthStateChanged(auth, (user) => {
     _state = { user };
-    emit();                // повідомляємо всіх слухачів
-    updateHeaderAuthUI(user); // оновлюємо UI хедера
+    emit();
+    updateHeaderAuthUI(user);
   });
 }
+
 
 // SIGN IN
 export async function signIn(email, password) {
@@ -85,4 +90,25 @@ export async function getAuthInstance() {
 export async function signOutAll() {
   const { auth, signOut } = await fb();
   await signOut(auth);
+}
+function isMobileChrome() {
+  const ua = navigator.userAgent;
+  return /Android.*Chrome/i.test(ua) || /CriOS/i.test(ua); // Chrome на iOS = CriOS
+}
+
+export async function googleSignIn() {
+  const { auth, GoogleAuthProvider, signInWithPopup, signInWithRedirect } = await fb();
+  const provider = new GoogleAuthProvider();
+
+  try {
+    if (isMobileChrome()) {
+      // 👉 Chrome Mobile — надійніше через redirect
+      await signInWithRedirect(auth, provider);
+    } else {
+      await signInWithPopup(auth, provider);
+    }
+  } catch (err) {
+    console.error('Google sign-in popup failed, falling back to redirect:', err);
+    await signInWithRedirect(auth, provider);
+  }
 }

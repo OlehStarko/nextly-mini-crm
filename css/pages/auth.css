@@ -1,57 +1,98 @@
-/* from auth-css */
+/* Контейнер */
 .auth-section {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: calc(100vh - 160px);
-    }
-    .auth-box {
-      width: 100%;
-      max-width: 360px;
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-    h2 { text-align: center; margin-bottom: 20px; font-weight: 600; }
-    .field { margin-bottom: 14px; display: flex; flex-direction: column; }
-    label { font-weight: 500; margin-bottom: 4px; }
-    input {
-      padding: 16px 32px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      
-      font-size: 14px;
-      font-family: inherit;
-    }
-    button {
-      width: auto;
-      max-height: 64px;
-      padding: 16px 32px;
-      background: #1B1B1B;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s;
-      max-height: 64px;
-    }
- .unpaid { background: #ec6060; }
- .paid { background: #59a85d; }
-    button:hover { background: #3A3A3A; }
-    .toggle {
-      text-align: center;
-      margin-top: 12px;
-      font-size: 14px;
-    }
-    .toggle a {
-      color: #0077cc;
-      text-decoration: none;
-      font-weight: 500;
-      margin-left: 4px;
-    }
-    .toggle a:hover { text-decoration: underline; }
-    .hidden { display: none; }
+  padding: clamp(24px, 4vw, 48px) 16px 64px;
+  display: grid;
+  place-items: center;
+}
+
+.auth-box {
+  width: min(560px, 100%);
+  background: #fff;
+  border-radius: 20px;
+  padding: clamp(20px, 3vw, 32px);
+  box-shadow:
+    0 6px 24px rgba(16, 24, 40, 0.06),
+    0 1px 2px rgba(16, 24, 40, 0.06);
+}
+
+/* Заголовок */
+.auth-box h2 {
+  margin: 0 0 20px;
+  font-size: clamp(24px, 2.6vw, 32px);
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+}
+
+/* Поля як у модалці */
+.auth-box .field {
+  margin-bottom: 16px;
+}
+
+.auth-box .field label {
+  display: block;
+  margin: 0 4px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151; /* сірий як у модалки */
+}
+
+/* базовий стиль інпутів */
+.auth-box input[type="email"],
+.auth-box input[type="password"],
+.auth-box input[type="text"],
+.auth-box select {
+  width: 100%;
+  border-radius: 16px;
+  border: 1px solid #e6eef6;
+  background: #f5f9ff;
+  padding: 14px 16px;
+  font-size: 18px;
+  line-height: 26px;
+  color: #0f172a;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  box-shadow: inset 0 1px 0 rgba(16,24,40,.04);
+}
+
+/* фокус — така ж підсвітка, як у модалці */
+.auth-box input:focus,
+.auth-box select:focus {
+  background: #fff;
+  border-color: #99c2ff;            /* м’який синій бордер */
+  box-shadow:
+    0 0 0 4px rgba(0, 106, 255, .10), /* зовнішній фокус-кільце */
+    inset 0 1px 0 rgba(16,24,40,.04);
+}
+
+/* disabled / readonly (на майбутнє) */
+.auth-box input:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Кнопка — не чіпав, але підігнав відступи */
+#submitBtn {
+  width: fit-content;
+  min-width: 160px;
+  margin-top: 8px;
+  border-radius: 14px;
+  padding: 14px 22px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;             /* ← ось ця стрічка робить текст білим */
+  background: #1B1B1B;     /* щоб відповідало стилю інших кнопок */
+  border: none;
+  cursor: pointer;
+  transition: background-color .15s ease;
+}
+
+#submitBtn:hover {
+  background: #111;        /* невелике затемнення при наведенні */
+}
+
+/* Лінк перемикача режиму */
+.auth-box .toggle {
+  margin-top: 16px;
+  text-align: center;
+}

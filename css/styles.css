@@ -11,7 +11,8 @@ html{ scrollbar-gutter: stable both-edges; }
 
 html, body {
   height: 100%;
-  margin: 0;
+  margin: 0 !important; padding: 0 !important;
+
   font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-weight: 500;
   color: #111827;
@@ -160,8 +161,9 @@ input, select{
   grid-template-columns:auto 1fr auto auto;
   grid-template-areas:"brand nav user burger";
   align-items:center; gap:12px;
+  
   height:64px;
-  margin:16px 0;
+
   z-index:1000;
 }
 
@@ -299,4 +301,68 @@ body > div:has(> a[href*="privacy"], > a[href*="terms"], > a[href*="contact"]) {
 }
 strong{
   font-size: 18px;
+}
+.page--auth .navbar,
+.page--auth .sidebar-toggle {
+  display: none !important;
+}
+
+/* Ховаємо іконку-бургер на сторінці авторизації на малих екранах */
+@media (max-width: 900px) {
+  .is-auth .sidebar-toggle,
+  .is-auth .burger,
+  .is-auth .hamburger,
+  .is-auth .menu-btn,
+  .is-auth [data-role="burger"] {
+    display: none !important;
+  }
+}
+
+
+
+/* ===== Drawer user (тільки мобільне бургер-меню) ===== */
+.drawer-user { display: none; } /* за замовчуванням сховано всюди */
+
+/* Показуємо, коли меню відкрите і ми на мобільному */
+@media (max-width: 900px) {
+  .nav-center.open .drawer-user {
+    display: flex;
+  }
+}
+
+/* Стилізація блока */
+.nav-center .drawer-user {
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 8px 16px 4px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(16,24,40,.06);
+  position: sticky; /* прилипає зверху під час скролу списка посилань */
+  top: 8px;
+  z-index: 1;
+}
+
+.drawer-user .du-ava{
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background:#111;
+  color:#fff; font-weight:700; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  flex: 0 0 36px;
+}
+.drawer-user .du-meta{ display:flex; align-items:center; gap:12px; flex:1; min-width:0; }
+.drawer-user .du-name{
+  font-size:14px; font-weight:600; color:#0f172a;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.drawer-user .du-logout{
+  padding:6px 10px; border-radius:999px;
+  background:#111; color:#fff; border:0; font-weight:600; font-size:12px;
+}
+
+/* Щоб пункти меню не прилипали до верхнього блока */
+@media (max-width: 900px) {
+  .nav-center.open a { display:block; padding:12px 16px; font-size:20px; }
 }

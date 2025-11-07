@@ -1,6 +1,8 @@
 import { fb } from '../db/firebase.js';
-import { signIn, signUp, getAuthInstance } from '../store/session.js';
+import { signIn, signUp, getAuthInstance, googleSignIn } from '../store/session.js';
 export function render(root) {
+    document.documentElement.classList.add('is-auth');
+
   root.innerHTML = `
     <section class="auth-section">
       <div class="auth-box">
@@ -58,6 +60,48 @@ export function render(root) {
       nameField.classList.add('hidden');
     }
   });
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  // на всякий: закрити мобільне меню/оверлеї, щоб не заважали
+  document.body.classList.remove('nav-open');
+
+  const email = form.email.value.trim();
+  const password = form.password.value.trim();
+  const name = form.name?.value.trim();
+
+  try {
+    if (mode === 'login') {
+      await signIn(email, password);
+      // 👉 одразу на dashboard
+      location.hash = '#/dashboard';
+      return;
+    }
+
+    // ---- РЕЖИМ РЕЄСТРАЦІЇ ----
+    try {
+      const user = await signUp(email, password, name);
+      // після успішної реєстрації — теж на dashboard
+      location.hash = '#/dashboard';
+    } catch (err) {
+      if (err?.code === 'auth/email-already-in-use') {
+        alert('Цей email вже зареєстрований. Перемикаю форму на "Увійти".');
+
+        mode = 'login';
+        title.textContent = 'Увійти';
+        submitBtn.textContent = 'Увійти';
+        toggleText.textContent = 'Немає акаунта?';
+        toggleLink.textContent = 'Зареєструватися';
+        nameField.classList.add('hidden');
+        return;
+      }
+      throw err;
+    }
+  } catch (err) {
+    console.error('Auth error:', err?.code, err?.message);
+    alert(`${err?.code || 'auth/error'}: ${err?.message || 'Unknown error'}`);
+  }
+});
 
 
 form.addEventListener('submit', async (e) => {
