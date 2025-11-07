@@ -102,17 +102,27 @@ input, select{
   display:inline-flex; align-items:center; gap:6px; background:#f6f6f6; border:1px solid #eee;
   padding:4px 8px; border-radius:999px; font-size:12px; color:#444;
 }
+:root{ --vvh: 100dvh; } /* реальна висота вʼюпорта; оновимо її з JS */
 
 /* ================= Modal (глобальна) ================= */
-.modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center;z-index: 2000; }
+.modal{ position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 2000; contain: layout paint size; }
 .modal.open{ display:flex; }
-.modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35);z-index: 0; }
-.modal__dialog {
+.modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); z-index:0; }
+
+.modal__dialog{
+  position: fixed;        /* важливо для iOS */
+  left: 50%;
+  transform: translateX(-50%); /* лише по X — без translateY */
+  top: max(12px, env(safe-area-inset-top));
   width: 520px;
-  max-width: calc(100% - 80px); /* щоб при невеликому екрані все одно мати поля */
-  margin-inline: auto;
+  max-width: calc(100% - 32px);
+  max-height: min(calc(var(--vvh) * 0.80), 720px); /* до 80% екрана */
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0;
   border-radius: 20px;
   background: #fff;
+  z-index: 1;
 }
 /* На мобільних — ті самі поля, що і контент */
 @media (max-width: 600px) {
@@ -136,10 +146,17 @@ input, select{
     padding-inline: 16px;
   }
 }
-.modal__header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+/* шапка/тіло/футер всередині */
+.modal__header{ position: sticky; top: 0; background:#fff; z-index: 2;
+  display:flex; align-items:center; justify-content:space-between; padding:16px 16px 8px; }
+.modal__body{ padding: 0 16px 12px; display:grid; gap:10px; }
+.modal__actions{ position: sticky; bottom: 0; background:#fff; padding:8px 16px 16px; z-index: 2; display:flex; gap:8px; justify-content:flex-end; }
+
+/* коли відкрита клавіатура — прибираємо анімації/трансформації, щоб не ламались хіт-тести */
+.html-kb-open *{ transition:none !important; animation:none !important; }
 .modal__title{ font-size:18px; font-weight:600; }
-.modal__body{ display:grid; gap:10px; }
-.modal__actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+
+
 .modal__close{ background:#f6f6f6; border:1px solid #e5e5e5; }
 
 /* ================= Avatars / user badge ================= */
@@ -402,4 +419,70 @@ strong{
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+}
+/* ===== Toggle / Switch (єдиний стиль) =============================== */
+:root{
+  --sw-on: #22c55e;      /* зелений ввімкнено */
+  --sw-off:#e5e7eb;      /* сірий вимкнено   */
+  --sw-knob:#fff;        /* колір кружечка   */
+  --sw-ring:#2563eb33;   /* фокус-обводка    */
+}
+
+/* контейнер-лейбл, щоб усе клікабельне */
+.toggle{
+  --w: 48px;             /* ширина доріжки (md) */
+  --h: 28px;             /* висота доріжки (md) */
+  --p: 3px;              /* внутрішній відступ доріжки */
+  display:inline-flex; align-items:center; gap:10px; cursor:pointer;
+  user-select:none;
+}
+
+/* розміри */
+.toggle--sm{ --w: 40px; --h: 22px; --p: 2px; }
+.toggle--lg{ --w: 56px; --h: 32px; --p: 4px; }
+
+/* приховуємо системний чекбокс, але залишаємо його доступним */
+.toggle__input{
+  position:absolute; opacity:0; width:0; height:0;
+}
+
+/* доріжка */
+.toggle__track{
+  width:var(--w); height:var(--h);
+  background:var(--sw-off);
+  border-radius:999px;
+  box-shadow: inset 0 0 0 1px #0000000f;
+  position:relative;
+  transition: background .18s ease;
+}
+
+/* кружечок */
+.toggle__track::after{
+  content:"";
+  position:absolute; inset:var(--p) auto var(--p) var(--p);
+  width:calc(var(--h) - var(--p)*2);
+  height:calc(var(--h) - var(--p)*2);
+  background:var(--sw-knob);
+  border-radius:50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 4px 12px rgba(0,0,0,.12);
+  transition: transform .18s ease;
+}
+
+/* стан: увімкнено */
+.toggle__input:checked + .toggle__track{
+  background:var(--sw-on);
+}
+.toggle__input:checked + .toggle__track::after{
+  transform: translateX(calc(var(--w) - var(--h)));
+}
+
+/* фокус-клавіатура */
+.toggle__input:focus-visible + .toggle__track{
+  box-shadow: 0 0 0 4px var(--sw-ring);
+}
+
+/* вимкнена */
+.toggle[aria-disabled="true"],
+.toggle__input:disabled ~ *{
+  opacity:.6; cursor:not-allowed;
 }
