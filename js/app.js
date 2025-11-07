@@ -269,6 +269,24 @@ setTimeout(removeLegacyLegalBlock, 0);
   setVH();
 })();
 
+// iOS keyboard/visualViewport fix
+(function keyboardSafeViewport(){
+  const set = () => {
+    const vv = window.visualViewport;
+    const vh = vv ? vv.height : window.innerHeight;
+    document.documentElement.style.setProperty('--vvh', vh + 'px');
+
+    // клавіатура відкрита, якщо візуальна висота істотно менша
+    const open = vv && vh < window.innerHeight - 80;
+    document.documentElement.classList.toggle('html-kb-open', !!open);
+  };
+  if ('visualViewport' in window) {
+    visualViewport.addEventListener('resize', set);
+    visualViewport.addEventListener('scroll', set);
+  }
+  window.addEventListener('orientationchange', set);
+  set();
+})();
 
 // ініціалізація
 renderDrawerUser();
