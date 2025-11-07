@@ -1,8 +1,12 @@
 // public/js/modules/dashboard.js
 import { fb } from '../db/firebase.js';
+
+// підключаємо стилі сторінки (один активний лінк)
 usePageCss('/css/pages/dashboard.css');
+
 export async function render(root) {
   document.documentElement.classList.remove('is-auth');
+
   // ---------- РОЗМІТКА ----------
   root.innerHTML = `
     <section class="page page--dashboard">
@@ -48,37 +52,35 @@ export async function render(root) {
   const { auth, db, collection, getDocs, doc, updateDoc } = await fb();
   const uid = auth.currentUser?.uid;
   if (!uid) {
-    const stats = root.querySelector('#stats');
+    root.querySelector('#stats')?.replaceWith(document.createElement('div'));
     const list = root.querySelector('#todayList');
-    if (stats) stats.innerHTML = '';
     if (list) list.innerHTML = '<small>Авторизуйтесь…</small>';
     return;
   }
 
   // ---------- HELPERS (дати/утиліти) ----------
-  function atStartOfDay(d){ const x=new Date(d); x.setHours(0,0,0,0); return x; }
-  function sameDay(a,b){ return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
-  function ymd(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-  function monthLabel(d){ return d.toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' }); }
-  function dowShort(d){ return d.toLocaleDateString('uk-UA', { weekday: 'short' }); }
-  function titleForDate(d){
-    const today = atStartOfDay(new Date());
-    if (sameDay(d, today)) return 'Записи на сьогодні';
-    return `Записи на ${d.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' })}`;
-  }
-  function lockPageScroll() {
+  const atStartOfDay = d => { const x = new Date(d); x.setHours(0,0,0,0); return x; };
+  const sameDay = (a,b) =>
+    a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const monthLabel = d => d.toLocaleDateString('uk-UA', { month: 'long', year: 'numeric' });
+  const dowShort = d => d.toLocaleDateString('uk-UA', { weekday: 'short' });
+  const titleForDate = d => sameDay(d, atStartOfDay(new Date()))
+    ? 'Записи на сьогодні'
+    : `Записи на ${d.toLocaleDateString('uk-UA', { day: '2-digit', month: '2-digit' })}`;
+  const lockPageScroll = () => {
     const y = window.scrollY || document.documentElement.scrollTop || 0;
     const x = window.scrollX || document.documentElement.scrollLeft || 0;
-    return () => window.scrollTo({ top: y, left: x, behavior: 'instant' });
-  }
-  function centerDayHorizontally(container, el, behavior = 'smooth') {
+    return () => window.scrollTo({ top: y, left: x, behavior: 'auto' });
+  };
+  const centerDayHorizontally = (container, el, behavior = 'smooth') => {
     if (!container || !el) return;
     const c = container.getBoundingClientRect();
     const r = el.getBoundingClientRect();
     const delta = (r.left - c.left) - (c.width - r.width) / 2;
     container.scrollBy({ left: delta, behavior });
-  }
-  function positionTodaySecondFromLeft(daysWrap, behavior = 'instant') {
+  };
+  const positionTodaySecondFromLeft = (daysWrap, behavior = 'auto') => {
     if (!daysWrap) return;
     const isNarrow = window.matchMedia('(max-width: 768px)').matches;
     if (!isNarrow) return;
@@ -88,13 +90,13 @@ export async function render(root) {
     const maxLeft = Math.max(0, daysWrap.scrollWidth - daysWrap.clientWidth);
     const left = Math.min(maxLeft, Math.max(0, desiredLeft));
     requestAnimationFrame(() => daysWrap.scrollTo({ left, behavior }));
-  }
-  function applyRovingTabindex(daysWrap) {
+  };
+  const applyRovingTabindex = (daysWrap) => {
     const btns = [...daysWrap.querySelectorAll('.cal-day')];
     btns.forEach(b => b.setAttribute('tabindex', '-1'));
     const active = daysWrap.querySelector('.cal-day--active') || btns[0];
     if (active) active.setAttribute('tabindex', '0');
-  }
+  };
 
   // ---------- РЕНДЕР КАЛЕНДАР-СТРІЧКИ ----------
   function renderCalendarStrip(rootEl, currentMonthDate, allAppointments, onPickDate, selectedDate){
@@ -136,16 +138,23 @@ export async function render(root) {
       daysWrap.appendChild(btn);
     }
 
-    // tabindex + початкове позиціонування видимого дня
     applyRovingTabindex(daysWrap);
+
     const target =
       daysWrap.querySelector('.cal-day--active') ||
       daysWrap.querySelector('.cal-day--today');
 
     requestAnimationFrame(() => {
-      scrollDayIntoView(target, daysWrap, 'instant'); // без «ривка» на старті
+      scrollDayIntoView(target, daysWrap, 'auto');
       try { target?.focus({ preventScroll: true }); } catch (_) {}
     });
+
+    // делегування на пік дня
+    daysWrap.onclick = (e) => {
+      const btn = e.target.closest('.cal-day');
+      if (!btn) return;
+      onPickDate(atStartOfDay(new Date(btn.dataset.date)));
+    };
   }
 
   // ---------- ЗАВАНТАЖЕННЯ ДАНИХ ----------
@@ -194,13 +203,13 @@ export async function render(root) {
   // ---------- KPI ----------
   const todayStart = new Date().setHours(0,0,0,0);
   const todayEnd   = new Date().setHours(23,59,59,999);
-  const todayAll = appointments.filter(a => (a.ts >= todayStart && a.ts <= todayEnd));
+  const todayAll   = appointments.filter(a => (a.ts >= todayStart && a.ts <= todayEnd));
   const totalToday = sumBy(todayAll, a => toNumber(a.price));
   const paidToday  = sumBy(todayAll.filter(a => !!a.paid), a => toNumber(a.price));
 
   const kpis = [
-    { label: 'Клієнтів',          value: clients.length,                icon: iconUsers()    },
-    { label: 'Записів сьогодні',  value: todayAll.length,               icon: iconCalendar() },
+    { label: 'Клієнтів',          value: clients.length,                 icon: iconUsers()    },
+    { label: 'Записів сьогодні',  value: todayAll.length,                icon: iconCalendar() },
     { label: 'Сума',              value: `${formatMoney(totalToday)} ₴`, icon: iconCurrency() },
     { label: 'Оплачено',          value: `${formatMoney(paidToday)} ₴`,  icon: iconCheck()    },
   ];
@@ -221,25 +230,24 @@ export async function render(root) {
     `;
   }
 
-// ---------- СТЕЙТ КАЛЕНДАРЯ ----------
-const savedYMD   = localStorage.getItem('dashSelectedDate');
-const today      = atStartOfDay(new Date());
-const savedDate  = parseYMD(savedYMD);
-let selectedDate = (savedDate && sameDay(savedDate, today)) ? savedDate : today;
-let currentMonth = atStartOfDay(new Date(selectedDate));
+  // ---------- СТЕЙТ КАЛЕНДАРЯ ----------
+  const savedYMD   = localStorage.getItem('dashSelectedDate');
+  const today      = atStartOfDay(new Date());
+  const savedDate  = parseYMD(savedYMD);
+  let selectedDate = (savedDate && sameDay(savedDate, today)) ? savedDate : today;
+  let currentMonth = atStartOfDay(new Date(selectedDate));
 
-  const calEl    = document.getElementById('calendarStrip');
-  const prevBtn  = document.getElementById('calPrev');
-  const nextBtn  = document.getElementById('calNext');
-  const todayBtn = document.getElementById('calToday');
-  const dayTitle = document.getElementById('dayTitle');
+  const calEl      = document.getElementById('calendarStrip');
+  const prevBtn    = document.getElementById('calPrev');
+  const nextBtn    = document.getElementById('calNext');
+  const todayBtn   = document.getElementById('calToday');
+  const dayTitle   = document.getElementById('dayTitle');
   const daysWrapEl = document.getElementById('calDays');
 
   function onPickDate(d){
     const restoreScroll = lockPageScroll();
-
     selectedDate = atStartOfDay(d);
-localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замість ISO
+    localStorage.setItem('dashSelectedDate', ymd(selectedDate));
     if (dayTitle) dayTitle.textContent = titleForDate(selectedDate);
 
     renderCalendarStrip(calEl, currentMonth, appointments, onPickDate, selectedDate);
@@ -254,12 +262,8 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
     }
   }
 
-  // --- Горизонтальний скрол + drag/swipe + tap (разово) ---
-  if (daysWrapEl && !daysWrapEl.__wired) {
-    daysWrapEl.addEventListener('mousedown', (e) => {
-      if (e.target.closest('.cal-day')) e.preventDefault();
-    });
-
+  // Горизонтальний скрол колесиком
+  if (daysWrapEl && !daysWrapEl.__wheel) {
     daysWrapEl.addEventListener('wheel', (e) => {
       const horiz = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
       if (horiz !== 0) {
@@ -267,67 +271,10 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
         daysWrapEl.scrollLeft += horiz;
       }
     }, { passive: false });
-
-    let isDown = false;
-    let startX = 0, startY = 0;
-    let startScroll = 0;
-    let moved = 0;
-    let tapStartBtn = null;
-
-    daysWrapEl.addEventListener('pointerdown', (e) => {
-      e.preventDefault(); // миттєвий старт
-      isDown = true;
-      moved = 0;
-      startX = e.clientX;
-      startY = e.clientY;
-      startScroll = daysWrapEl.scrollLeft;
-      tapStartBtn = e.target.closest('.cal-day');
-
-      daysWrapEl.__prevScrollBehavior = daysWrapEl.style.scrollBehavior;
-      daysWrapEl.style.scrollBehavior = 'auto';
-
-      daysWrapEl.setPointerCapture(e.pointerId);
-      daysWrapEl.classList.add('dragging');
-    });
-
-    daysWrapEl.addEventListener('pointermove', (e) => {
-      if (!isDown) return;
-      e.preventDefault();
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      if (Math.max(Math.abs(dx), Math.abs(dy)) > 8) moved = 1;
-      daysWrapEl.scrollLeft = startScroll - dx;
-    });
-
-    function endDrag(e){
-      if (!isDown) return;
-      isDown = false;
-      daysWrapEl.classList.remove('dragging');
-      daysWrapEl.releasePointerCapture?.(e.pointerId);
-
-      daysWrapEl.style.scrollBehavior = daysWrapEl.__prevScrollBehavior || '';
-      delete daysWrapEl.__prevScrollBehavior;
-
-      if (!moved) {
-        const upTarget = e.target.closest('.cal-day') ||
-          (document.elementFromPoint(e.clientX, e.clientY)?.closest('.cal-day'));
-        const btn = upTarget || tapStartBtn;
-        if (btn && btn.dataset.date) {
-          btn.blur();
-          onPickDate(atStartOfDay(new Date(btn.dataset.date)));
-        }
-      }
-      moved = 0;
-      tapStartBtn = null;
-    }
-
-    daysWrapEl.addEventListener('pointerup', endDrag);
-    daysWrapEl.addEventListener('pointercancel', endDrag);
-    daysWrapEl.addEventListener('pointerleave', endDrag);
-    daysWrapEl.__wired = true;
+    daysWrapEl.__wheel = true;
   }
 
-  // ---------- Список за обраний день ----------
+  // Список за обраний день
   function renderListForSelectedDay(){
     const items = appointments.filter(a=>{
       const dt = new Date(a.ts || a.date || a.start || a.time);
@@ -371,40 +318,13 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
     currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth()+1, 1);
     renderCalendarStrip(calEl, currentMonth, appointments, onPickDate, selectedDate);
   });
- todayBtn?.addEventListener('click', ()=>{
-  selectedDate = atStartOfDay(new Date());
-  currentMonth = atStartOfDay(new Date());
-  localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // зберігаємо YMD
-
-  if (dayTitle) dayTitle.textContent = titleForDate(selectedDate);
-  renderCalendarStrip(calEl, currentMonth, appointments, onPickDate, selectedDate);
-  renderListForSelectedDay();
-});
-  // Клавіатурні шорткати
-  document.addEventListener('keydown', (e) => {
-    if (e.target && ['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) return;
-    if (e.key === 'ArrowLeft') {
-      selectedDate = atStartOfDay(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() - 1));
-      if (selectedDate.getMonth() !== currentMonth.getMonth()) {
-        currentMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-      }
-      onPickDate(selectedDate);
-    }
-    if (e.key === 'ArrowRight') {
-      selectedDate = atStartOfDay(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + 1));
-      if (selectedDate.getMonth() !== currentMonth.getMonth()) {
-        currentMonth = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-      }
-      onPickDate(selectedDate);
-    }
-    if (e.key === 'PageUp') {
-      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
-      renderCalendarStrip(calEl, currentMonth, appointments, onPickDate, selectedDate);
-    }
-    if (e.key === 'PageDown') {
-      currentMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
-      renderCalendarStrip(calEl, currentMonth, appointments, onPickDate, selectedDate);
-    }
+  todayBtn?.addEventListener('click', ()=>{
+    selectedDate = atStartOfDay(new Date());
+    currentMonth = atStartOfDay(new Date());
+    localStorage.setItem('dashSelectedDate', ymd(selectedDate));
+    if (dayTitle) dayTitle.textContent = titleForDate(selectedDate);
+    renderCalendarStrip(calEl, currentMonth, appointments, onPickDate, selectedDate);
+    renderListForSelectedDay();
   });
 
   // первинний рендер
@@ -415,9 +335,9 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
   // після першого рендера — якщо сьогодні, зробимо другим зліва; інакше — центр
   const firstActive = document.querySelector('#calDays .cal-day--active');
   if (sameDay(selectedDate, new Date())) {
-    positionTodaySecondFromLeft(document.getElementById('calDays'), 'instant');
+    positionTodaySecondFromLeft(document.getElementById('calDays'), 'auto');
   } else if (firstActive) {
-    centerDayHorizontally(document.getElementById('calDays'), firstActive, 'instant');
+    centerDayHorizontally(document.getElementById('calDays'), firstActive, 'auto');
   }
 
   // === МОДАЛКА РЕДАГУВАННЯ ===================================================
@@ -462,38 +382,39 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
     document.body.appendChild(el);
   }
 
-  let editingAppt = null;
-
-  function closeEditModal(){
-    document.getElementById('editApptModal')?.classList.remove('open');
-    editingAppt = null;
+  // iOS-safe блокування скролу сторінки під модалкою
+  function lockBodyScroll() {
+    const y = window.scrollY || 0;
+    document.body.dataset.scrollY = String(y);
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${y}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
+    document.body.classList.add('modal-open');
+  }
+  function unlockBodyScroll() {
+    const y = Number(document.body.dataset.scrollY || 0);
+    document.body.classList.remove('modal-open');
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    delete document.body.dataset.scrollY;
+    requestAnimationFrame(() => window.scrollTo(0, y));
   }
 
+  let editingAppt = null;
+
   function openEditModal(appt) {
-    // --- Фікс Safari tap-bug для кнопки ✕ ---
-const closeBtn = document.getElementById('editApptClose');
-if (closeBtn) {
-  closeBtn.addEventListener('click', (e) => {
-    e.preventDefault();      // не дає події піти вище
-    e.stopPropagation();     // блокує "клік крізь" модалку
-
-    // знімаємо фокус із активного інпута — це сховає клавіатуру
-    try { document.activeElement?.blur(); } catch(_) {}
-
-    // тепер безпечно закриваємо модалку
-    closeEditModal();
-
-    // додатково — трохи зачекаємо й «підштовхнемо» Safari оновити layout
-    setTimeout(() => {
-      void document.body.offsetHeight; // форс-рефлоу
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' || 'auto' });
-    }, 120);
-  });
-}
     ensureEditModal();
     editingAppt = appt;
 
     const d = new Date(appt.ts);
+    const modal = document.getElementById('editApptModal');
+
+    // заповнення полів
     document.getElementById('edit-appt-id').value = appt.id;
 
     const clientSel  = document.getElementById('editClientSel');
@@ -517,13 +438,13 @@ if (closeBtn) {
       .map(t => `<option value="${t}" ${t === (appt.title || appt.service || appt.serviceTitle || '') ? 'selected' : ''}>${t}</option>`)
       .join('');
 
-    serviceSel.addEventListener('change', () => {
+    serviceSel.onchange = () => {
       const t = serviceSel.value;
       const svc = _services.find(s => s.title === t);
       if (svc && Number(svc.priceDefault) > 0) {
         document.getElementById('editPrice').value = Number(svc.priceDefault);
       }
-    });
+    };
 
     document.getElementById('editDate').value    = d.toISOString().slice(0,10);
     document.getElementById('editTime').value    = d.toTimeString().slice(0,5);
@@ -531,16 +452,38 @@ if (closeBtn) {
     document.getElementById('editStatus').value  = appt.status || 'scheduled';
     document.getElementById('editPaid').checked  = !!appt.paid;
 
-    document.getElementById('editApptModal').classList.add('open');
-    document.documentElement.classList.add('html-kb-open'); // вимикає анімації на час вводу
-document.body.classList.add('modal-open');              // якщо блокуєш скрол бody десь у CSS
+    // показати модалку
+    modal.classList.add('open');
 
-// сфокусуємо перше поле без автоскролу
-try { document.getElementById('editClientSel')?.focus({ preventScroll:true }); } catch(_) {}
+    // важливо для Safari: не фокусимо поля (особливо <select>), щоб не відкривався список сам
+    try { document.activeElement?.blur(); } catch(_) {}
+    const tempUnfocus = [];
+    modal.querySelectorAll('select').forEach(sel => {
+      if (!sel.hasAttribute('data-prev-tabindex')) {
+        sel.setAttribute('data-prev-tabindex', sel.getAttribute('tabindex') ?? '');
+      }
+      sel.setAttribute('tabindex', '-1');
+      tempUnfocus.push(sel);
+    });
+    setTimeout(() => {
+      tempUnfocus.forEach(sel => {
+        const prev = sel.getAttribute('data-prev-tabindex');
+        if (prev === '') sel.removeAttribute('tabindex');
+        else sel.setAttribute('tabindex', prev);
+        sel.removeAttribute('data-prev-tabindex');
+      });
+    }, 200);
 
-// невелика «підштовхуюча» прокрутка, щоб Safari оновив хіт-тести
-requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'instant' || 'auto' }); });
+    lockBodyScroll();
+  }
 
+  function closeEditModal(){
+    const modal = document.getElementById('editApptModal');
+    if (!modal) return;
+    try { document.activeElement?.blur(); } catch(_) {}
+    modal.classList.remove('open');
+    unlockBodyScroll();
+    editingAppt = null;
   }
 
   (function wireEditModal(){
@@ -548,8 +491,27 @@ requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'inst
     const modal = document.getElementById('editApptModal');
     if (!modal) return;
 
-    modal.querySelector('.modal__backdrop')?.addEventListener('click', closeEditModal);
-    document.getElementById('editApptClose')?.addEventListener('click', closeEditModal);
+    // клік по фону
+    const scrim = modal.querySelector('.modal__backdrop');
+    scrim?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeEditModal();
+    });
+
+    // клік по ✕ — блокуємо «клік крізь» у Safari
+    const x = document.getElementById('editApptClose');
+    if (x && !x.__wired) {
+      x.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        try { document.activeElement?.blur(); } catch(_) {}
+        closeEditModal();
+        setTimeout(() => { void document.body.offsetHeight; }, 120);
+      });
+      x.__wired = true;
+    }
+
     document.getElementById('editApptSave')?.addEventListener('click', saveEditedAppt);
   })();
 
@@ -587,33 +549,27 @@ requestAnimationFrame(() => { window.scrollTo({ top: 0, left: 0, behavior: 'inst
       }
 
       closeEditModal();
-      document.documentElement.classList.remove('html-kb-open');
-document.body.classList.remove('modal-open');
-// форс-перемальовка після закриття клавіатури
-setTimeout(() => { void document.body.offsetHeight; window.scrollTo({ top:0, left:0, behavior:'instant' || 'auto' }); }, 120);
-
       renderListForSelectedDay();
     } catch (err) {
       console.error('Update failed:', err);
       alert('Помилка збереження у Firestore');
     }
   }
-
-  ensureEditModal();
 }
 
-// ---------------- helpers (поза render) ----------------
-// helper: підключити/замінити css сторінки
+/* ---------------- helpers (поза render) ---------------- */
+
+// підключити/замінити css сторінки
 function usePageCss(href) {
-  // прибираємо попереднє
   document.querySelectorAll('link[data-page-style]').forEach(l => l.remove());
-  // додаємо потрібне
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = href;
   link.dataset.pageStyle = 'true';
   document.head.appendChild(link);
 }
+
+// розбір YYYY-MM-DD
 function parseYMD(s) {
   if (!s) return null;
   const m = String(s).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -622,36 +578,19 @@ function parseYMD(s) {
   d.setHours(0, 0, 0, 0);
   return d;
 }
-function scrollDayIntoView(dayEl, wrap, behavior = 'instant') {
+
+// прокрутити день у видиму область
+function scrollDayIntoView(dayEl, wrap, behavior = 'auto') {
   if (!wrap || !dayEl) return;
   const isDesktop = matchMedia('(min-width: 900px)').matches;
   const ratio = isDesktop ? 0.5 : 0.25; // 0.5 = центр, 0.25 = другий зліва
   const desired = dayEl.offsetLeft - (wrap.clientWidth - dayEl.offsetWidth) * ratio;
   const max = Math.max(0, wrap.scrollWidth - wrap.clientWidth);
   const left = Math.max(0, Math.min(desired, max));
-  wrap.scrollTo({ left, behavior }); // 'instant' для першого рендера
+  wrap.scrollTo({ left, behavior });
 }
 
-function ymdFromTs(ts) {
-  const d = new Date(ts);
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-function toYMDString(str) {
-  if (!str) return '';
-  const s = String(str).trim().replace(/\s+/g, '');
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const m = s.match(/^(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{4})$/);
-  if (m) {
-    const dd = m[1].padStart(2, '0');
-    const mm = m[2].padStart(2, '0');
-    const yyyy = m[3];
-    return `${yyyy}-${mm}-${dd}`;
-  }
-  return s;
-}
+// нормалізація запису
 function normalizeAppt(a) {
   if (typeof a.ts === 'string' && /^\d+$/.test(a.ts)) a.ts = Number(a.ts);
   if (a.ts && typeof a.ts === 'object' && typeof a.ts.seconds === 'number') {
@@ -672,11 +611,35 @@ function normalizeAppt(a) {
   a.localDate = a.date ? toYMDString(a.date) : ymdFromTs(a.ts);
   return a;
 }
+
+function ymdFromTs(ts) {
+  const d = new Date(ts);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function toYMDString(str) {
+  if (!str) return '';
+  const s = String(str).trim().replace(/\s+/g, '');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m = s.match(/^(\d{1,2})[.\-\/](\d{1,2})[.\-\/](\d{4})$/);
+  if (m) {
+    const dd = String(m[1]).padStart(2, '0');
+    const mm = String(m[2]).padStart(2, '0');
+    const yyyy = m[3];
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  return s;
+}
+
 function toNumber(v) {
   if (v == null) return 0;
   const n = Number(String(v).replace(/[^\d.-]/g, ''));
   return isFinite(n) ? n : 0;
 }
+
 function sumBy(arr, sel) { return arr.reduce((s, x) => s + (sel(x) || 0), 0); }
 function formatMoney(n) { return new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 0 }).format(n || 0); }
 function dateTimeStr(ts) {
@@ -687,7 +650,7 @@ function dateTimeStr(ts) {
 }
 function statusDot(status) {
   const map = { scheduled: 'scheduled', done: 'done', canceled: 'canceled' };
-  return `<span class="status-dot ${map[status] || 'scheduled'}"></span>`;
+  return `<span class="status-dot ${map[status] || 'scheduled'}"></span>`
 }
 function paidBadge(paid, soft=false) {
   if (soft) return `<span class="badge ${paid ? 'paid-soft' : 'unpaid-soft'}">${paid ? 'Оплачено' : 'Не оплачено'}</span>`;
@@ -719,31 +682,21 @@ function rowHTML(r, { soft }) {
   `;
 }
 
-/* ---------- icons (inline SVG) ---------- */
-function iconUsers(){ return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24.1858 28.827C23.0125 29.1737 21.6258 29.3337 19.9992 29.3337H11.9992C10.3725 29.3337 8.98583 29.1737 7.8125 28.827C8.10583 25.3603 11.6658 22.627 15.9992 22.627C20.3325 22.627 23.8925 25.3603 24.1858 28.827Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.9974 2.66602H11.9974C5.33073 2.66602 2.66406 5.33268 2.66406 11.9993V19.9993C2.66406 25.0393 4.18406 27.7993 7.81073 28.826C8.10406 25.3593 11.6641 22.626 15.9974 22.626C20.3307 22.626 23.8907 25.3593 24.1841 28.826C27.8107 27.7993 29.3307 25.0393 29.3307 19.9993V11.9993C29.3307 5.33268 26.6641 2.66602 19.9974 2.66602ZM15.9974 18.8927C13.3574 18.8927 11.2241 16.746 11.2241 14.106C11.2241 11.466 13.3574 9.33268 15.9974 9.33268C18.6374 9.33268 20.7707 11.466 20.7707 14.106C20.7707 16.746 18.6374 18.8927 15.9974 18.8927Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.7732 14.1073C20.7732 16.7473 18.6399 18.894 15.9999 18.894C13.3599 18.894 11.2266 16.7473 11.2266 14.1073C11.2266 11.4673 13.3599 9.33398 15.9999 9.33398C18.6399 9.33398 20.7732 11.4673 20.7732 14.1073Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
-function iconCalendar(){ return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M10.6641 16.2656H19.9974" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M10.6641 21.5996H16.5041" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13.3307 7.99935H18.6641C21.3307 7.99935 21.3307 6.66602 21.3307 5.33268C21.3307 2.66602 19.9974 2.66602 18.6641 2.66602H13.3307C11.9974 2.66602 10.6641 2.66602 10.6641 5.33268C10.6641 7.99935 11.9974 7.99935 13.3307 7.99935Z" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M21.3333 5.35938C25.7733 5.59938 28 7.23937 28 13.3327V21.3327C28 26.666 26.6667 29.3327 20 29.3327H12C5.33333 29.3327 4 26.666 4 21.3327V13.3327C4 7.25271 6.22667 5.59938 10.6667 5.35938" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-`; }
-function iconCurrency(){ return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.5625 19.1071C11.5625 20.8271 12.8825 22.2138 14.5225 22.2138H17.8692C19.2958 22.2138 20.4558 21.0004 20.4558 19.5071C20.4558 17.8804 19.7492 17.3071 18.6958 16.9338L13.3225 15.0671C12.2692 14.6938 11.5625 14.1204 11.5625 12.4938C11.5625 11.0004 12.7225 9.78711 14.1492 9.78711H17.4958C19.1358 9.78711 20.4558 11.1738 20.4558 12.8938" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8V24" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.9974 29.3327H11.9974C5.33073 29.3327 2.66406 26.666 2.66406 19.9993V11.9993C2.66406 5.33268 5.33073 2.66602 11.9974 2.66602H19.9974C26.6641 2.66602 29.3307 5.33268 29.3307 11.9993V19.9993C29.3307 26.666 26.6641 29.3327 19.9974 29.3327Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
-function iconCheck(){ return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M19.0182 20.584H12.3516" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M15.6875 17.3301V23.9967" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M16.8839 3.35686L16.8439 3.4502L12.9772 12.4235H9.17719C8.27052 12.4235 7.40385 12.6102 6.61719 12.9435L8.95052 7.3702L9.00385 7.23686L9.09719 7.02353C9.12385 6.94353 9.15052 6.86353 9.19052 6.79686C10.9372 2.75686 12.9105 1.83686 16.8839 3.35686Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M24.0621 12.6908C23.4621 12.5041 22.8221 12.4241 22.1821 12.4241H12.9688L16.8354 3.45076L16.8754 3.35742C17.0754 3.42409 17.2621 3.51742 17.4621 3.59742L20.4088 4.83742C22.0488 5.51742 23.1954 6.22409 23.8887 7.07742C24.0221 7.23742 24.1287 7.38409 24.2221 7.55742C24.3421 7.74409 24.4354 7.93076 24.4888 8.13076C24.5421 8.25076 24.5821 8.37076 24.6088 8.47742C24.9688 9.59742 24.7554 10.9708 24.0621 12.6908Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M28.7008 18.9305V21.5305C28.7008 21.7972 28.6875 22.0638 28.6742 22.3305C28.4208 26.9838 25.8208 29.3305 20.8875 29.3305H10.4875C10.1675 29.3305 9.8475 29.3038 9.54083 29.2638C5.30083 28.9838 3.03417 26.7172 2.75417 22.4772C2.71417 22.1705 2.6875 21.8505 2.6875 21.5305V18.9305C2.6875 16.2505 4.31417 13.9438 6.63417 12.9438C7.43417 12.6105 8.2875 12.4238 9.19417 12.4238H22.2075C22.8608 12.4238 23.5008 12.5172 24.0875 12.6905C26.7408 13.5038 28.7008 15.9838 28.7008 18.9305Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.94406 7.36914L6.61073 12.9425C4.29073 13.9425 2.66406 16.2491 2.66406 18.9291V15.0225C2.66406 11.2358 5.3574 8.07581 8.94406 7.36914Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M28.6993 15.0242V18.9309C28.6993 15.9975 26.7526 13.5042 24.0859 12.7042C24.7793 10.9709 24.9793 9.61086 24.6459 8.47753C24.6193 8.35753 24.5793 8.23753 24.5259 8.13086C27.0059 9.41086 28.6993 12.0375 28.6993 15.0242Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-`; }
-// (іконка edit — за бажання повернеш)
-// const ICON_EDIT = `<img src="./icons/edit.svg" alt="edit" width="18" height="18" style="display:block">`;
-// Коли інпут втрачає фокус і клавіатура ховається — підштовхнемо Safari перемалюватись
+/* ---------- icons (inline SVG) безопасні однорядкові ---------- */
+function iconUsers() {
+  return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24.1858 28.827C23.0125 29.1737 21.6258 29.3337 19.9992 29.3337H11.9992C10.3725 29.3337 8.98583 29.1737 7.8125 28.827C8.10583 25.3603 11.6658 22.627 15.9992 22.627C20.3325 22.627 23.8925 25.3603 24.1858 28.827Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.9974 2.66602H11.9974C5.33073 2.66602 2.66406 5.33268 2.66406 11.9993V19.9993C2.66406 25.0393 4.18406 27.7993 7.81073 28.826C8.10406 25.3593 11.6641 22.626 15.9974 22.626C20.3307 22.626 23.8907 25.3593 24.1841 28.826C27.8107 27.7993 29.3307 25.0393 29.3307 19.9993V11.9993C29.3307 5.33268 26.6641 2.66602 19.9974 2.66602ZM15.9974 18.8927C13.3574 18.8927 11.2241 16.746 11.2241 14.106C11.2241 11.466 13.3574 9.33268 15.9974 9.33268C18.6374 9.33268 20.7707 11.466 20.7707 14.106C20.7707 16.746 18.6374 18.8927 15.9974 18.8927Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function iconCalendar() {
+  return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.6641 16.2656H19.9974" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.6641 21.5996H16.5041" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.3307 7.99935H18.6641C21.3307 7.99935 21.3307 6.66602 21.3307 5.33268C21.3307 2.66602 19.9974 2.66602 18.6641 2.66602H13.3307C11.9974 2.66602 10.6641 2.66602 10.6641 5.33268C10.6641 7.99935 11.9974 7.99935 13.3307 7.99935Z" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M21.3333 5.35938C25.7733 5.59938 28 7.23937 28 13.3327V21.3327C28 26.666 26.6667 29.3327 20 29.3327H12C5.33333 29.3327 4 26.666 4 21.3327V13.3327C4 7.25271 6.22667 5.59938 10.6667 5.35938" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function iconCurrency() {
+  return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.5625 19.1071C11.5625 20.8271 12.8825 22.2138 14.5225 22.2138H17.8692C19.2958 22.2138 20.4558 21.0004 20.4558 19.5071C20.4558 17.8804 19.7492 17.3071 18.6958 16.9338L13.3225 15.0671C12.2692 14.6938 11.5625 14.1204 11.5625 12.4938C11.5625 11.0004 12.7225 9.78711 14.1492 9.78711H17.4958C19.1358 9.78711 20.4558 11.1738 20.4558 12.8938" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8V24" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.9974 29.3327H11.9974C5.33073 29.3327 2.66406 26.666 2.66406 19.9993V11.9993C2.66406 5.33268 5.33073 2.66602 11.9974 2.66602H19.9974C26.6641 2.66602 29.3307 5.33268 29.3307 11.9993V19.9993C29.3307 26.666 26.6641 29.3327 19.9974 29.3327Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+function iconCheck() {
+  return `<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19.0182 20.584H12.3516" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.6875 17.3301V23.9967" stroke="#1B1B1B" stroke-width="2" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.8839 3.35686L16.8439 3.4502L12.9772 12.4235H9.17719C8.27052 12.4235 7.40385 12.6102 6.61719 12.9435L8.95052 7.3702L9.00385 7.23686L9.09719 7.02353C9.12385 6.94353 9.15052 6.86353 9.19052 6.79686C10.9372 2.75686 12.9105 1.83686 16.8839 3.35686Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M24.0621 12.6908C23.4621 12.5041 22.8221 12.4241 22.1821 12.4241H12.9688L16.8354 3.45076L16.8754 3.35742C17.0754 3.42409 17.2621 3.51742 17.4621 3.59742L20.4088 4.83742C22.0488 5.51742 23.1954 6.22409 23.8887 7.07742C24.0221 7.23742 24.1287 7.38409 24.2221 7.55742C24.3421 7.74409 24.4354 7.93076 24.4888 8.13076C24.5421 8.25076 24.5821 8.37076 24.6088 8.47742C24.9688 9.59742 24.7554 10.9708 24.0621 12.6908Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M28.7008 18.9305V21.5305C28.7008 21.7972 28.6875 22.0638 28.6742 22.3305C28.4208 26.9838 25.8208 29.3305 20.8875 29.3305H10.4875C10.1675 29.3305 9.8475 29.3038 9.54083 29.2638C5.30083 28.9838 3.03417 26.7172 2.75417 22.4772C2.71417 22.1705 2.6875 21.8505 2.6875 21.5305V18.9305C2.6875 16.2505 4.31417 13.9438 6.63417 12.9438C7.43417 12.6105 8.2875 12.4238 9.19417 12.4238H22.2075C22.8608 12.4238 23.5008 12.5172 24.0875 12.6905C26.7408 13.5038 28.7008 15.9838 28.7008 18.9305Z" stroke="#1B1B1B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+}
+
+/* Після приховання клавіатури в Safari злегка «підштовхуємо» рефлоу */
 document.addEventListener('focusout', () => {
-  setTimeout(() => {
-    void document.body.offsetHeight; // рефлоу
-  }, 120);
+  setTimeout(() => { void document.body.offsetHeight; }, 120);
 }, true);
