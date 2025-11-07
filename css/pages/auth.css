@@ -4,7 +4,7 @@
   display: grid;
   place-items: center;
 }
-
+.hidden { display: none !important; }
 .auth-box {
   width: min(560px, 100%);
   background: #fff;
