@@ -1,27 +1,33 @@
 import { fb } from '../db/firebase.js';
-import { signIn, signUp, getAuthInstance, googleSignIn } from '../store/session.js';
+import { signIn, signUp } from '../store/session.js';
+
 export function render(root) {
-    document.documentElement.classList.add('is-auth');
+  document.documentElement.classList.add('is-auth');
 
   root.innerHTML = `
     <section class="auth-section">
       <div class="auth-box">
         <h2 id="authTitle">Увійти</h2>
+
         <form id="authForm">
           <div id="nameField" class="field hidden">
             <label for="name">Ім’я</label>
-            <input type="text" id="name" name="name" placeholder="Ваше ім’я">
+            <input type="text" id="name" name="name" placeholder="Ваше ім’я" autocomplete="name">
           </div>
+
           <div class="field">
             <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="email@example.com" required>
+            <input type="email" id="email" name="email" placeholder="email@example.com" required autocomplete="email">
           </div>
+
           <div class="field">
             <label for="password">Пароль</label>
-            <input type="password" id="password" name="password" placeholder="••••••••" required>
+            <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
           </div>
-          <button type="submit" id="submitBtn">Увійти</button>
+
+          <button type="submit" id="submitBtn" class="btn-primary">Увійти</button>
         </form>
+
         <p class="toggle">
           <span id="toggleText">Немає акаунта?</span>
           <a href="#" id="toggleLink">Зареєструватися</a>
@@ -30,131 +36,67 @@ export function render(root) {
     </section>
   `;
 
-  // moved CSS to external file
-
-
-  const form = root.querySelector('#authForm');
-  const title = root.querySelector('#authTitle');
+  const form       = root.querySelector('#authForm');
+  const titleEl    = root.querySelector('#authTitle');
   const toggleLink = root.querySelector('#toggleLink');
   const toggleText = root.querySelector('#toggleText');
-  const nameField = root.querySelector('#nameField');
-  const submitBtn = root.querySelector('#submitBtn');
+  const nameField  = root.querySelector('#nameField');
+  const submitBtn  = root.querySelector('#submitBtn');
 
-  let mode = 'login'; // login | register
+  let mode = 'login'; // 'login' | 'register'
 
+  function setMode(next) {
+    mode = next;
+    const isReg = mode === 'register';
+    titleEl.textContent    = isReg ? 'Реєстрація' : 'Увійти';
+    submitBtn.textContent  = isReg ? 'Зареєструватися' : 'Увійти';
+    toggleText.textContent = isReg ? 'Вже маєте акаунт?' : 'Немає акаунта?';
+    toggleLink.textContent = isReg ? 'Увійти' : 'Зареєструватися';
+    nameField.classList.toggle('hidden', !isReg);
+    // підказка браузеру які автозаповнення використовувати
+    form.password.setAttribute('autocomplete', isReg ? 'new-password' : 'current-password');
+  }
+
+  // перемикач режимів
   toggleLink.addEventListener('click', (e) => {
     e.preventDefault();
-    if (mode === 'login') {
-      mode = 'register';
-      title.textContent = 'Зареєструватися';
-      submitBtn.textContent = 'Зареєструватися';
-      toggleText.textContent = 'Вже маєте акаунт?';
-      toggleLink.textContent = 'Увійти';
-      nameField.classList.remove('hidden');
-    } else {
-      mode = 'login';
-      title.textContent = 'Увійти';
-      submitBtn.textContent = 'Увійти';
-      toggleText.textContent = 'Немає акаунта?';
-      toggleLink.textContent = 'Зареєструватися';
-      nameField.classList.add('hidden');
+    setMode(mode === 'login' ? 'register' : 'login');
+  });
+
+  // ЄДИНИЙ submit-хендлер
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    document.body.classList.remove('nav-open'); // на випадок відкритого бургера
+
+    const email = form.email.value.trim();
+    const password = form.password.value.trim();
+    const name = form.name?.value.trim();
+
+    try {
+      if (mode === 'login') {
+        await signIn(email, password);
+        location.hash = '#/dashboard';
+        return;
+      }
+
+      // ---- реєстрація ----
+      try {
+        await signUp(email, password, name);
+        location.hash = '#/dashboard';
+      } catch (err) {
+        if (err?.code === 'auth/email-already-in-use') {
+          alert('Цей email вже зареєстрований. Перемикаю форму на "Увійти".');
+          setMode('login');
+          return;
+        }
+        throw err;
+      }
+    } catch (err) {
+      console.error('Auth error:', err?.code, err?.message);
+      alert(`${err?.code || 'auth/error'}: ${err?.message || 'Unknown error'}`);
     }
   });
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
 
-  // на всякий: закрити мобільне меню/оверлеї, щоб не заважали
-  document.body.classList.remove('nav-open');
-
-  const email = form.email.value.trim();
-  const password = form.password.value.trim();
-  const name = form.name?.value.trim();
-
-  try {
-    if (mode === 'login') {
-      await signIn(email, password);
-      // 👉 одразу на dashboard
-      location.hash = '#/dashboard';
-      return;
-    }
-
-    // ---- РЕЖИМ РЕЄСТРАЦІЇ ----
-    try {
-      const user = await signUp(email, password, name);
-      // після успішної реєстрації — теж на dashboard
-      location.hash = '#/dashboard';
-    } catch (err) {
-      if (err?.code === 'auth/email-already-in-use') {
-        alert('Цей email вже зареєстрований. Перемикаю форму на "Увійти".');
-
-        mode = 'login';
-        title.textContent = 'Увійти';
-        submitBtn.textContent = 'Увійти';
-        toggleText.textContent = 'Немає акаунта?';
-        toggleLink.textContent = 'Зареєструватися';
-        nameField.classList.add('hidden');
-        return;
-      }
-      throw err;
-    }
-  } catch (err) {
-    console.error('Auth error:', err?.code, err?.message);
-    alert(`${err?.code || 'auth/error'}: ${err?.message || 'Unknown error'}`);
-  }
-});
-
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const email = form.email.value.trim();
-  const password = form.password.value.trim();
-  const name = form.name?.value.trim();
-
-  try {
-    if (mode === 'login') {
-      await signIn(email, password);
-      return;
-    }
-
-    // ---- РЕЖИМ РЕЄСТРАЦІЇ ----
-    try {
-      // пробуємо створити акаунт
-      const user = await signUp(email, password, name);
-      console.log('✅ Реєстрація успішна:', user);
-    } catch (err) {
-      // якщо такий email вже є — тихо перемикаємось на вхід
-      if (err?.code === 'auth/email-already-in-use') {
-        // опціонально можна спробувати перевірку методів, але не обов'язково
-        alert('Цей email вже зареєстрований. Перемикаю форму на "Увійти".');
-
-        mode = 'login';
-        title.textContent = 'Увійти';
-        submitBtn.textContent = 'Увійти';
-        toggleText.textContent = 'Немає акаунта?';
-        toggleLink.textContent = 'Зареєструватися';
-        nameField.classList.add('hidden');
-
-        // НІЯКИХ перекидок у signUp далі — просто виходимо
-        return;
-      }
-
-      // інші помилки реєстрації — покажемо як є
-      throw err;
-    }
-  } catch (err) {
-    console.error('Auth error:', err?.code, err?.message);
-    alert(`${err?.code || 'auth/error'}: ${err?.message || 'Unknown error'}`);
-  }
-});
-
-
-}
-
-function injectOnce(id, css) {
-  if (document.getElementById(id)) return;
-  const s = document.createElement('style');
-  s.id = id;
-  s.textContent = css;
-  document.head.appendChild(s);
+  // стартуємо в режимі входу (поле "Ім’я" сховане)
+  setMode('login');
 }

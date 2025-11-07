@@ -455,7 +455,7 @@ localStorage.setItem('dashSelectedDate', ymd(selectedDate)); // <-- YMD замі
             <label><input id="editPaid" type="checkbox"> Оплачено</label>
           </div>
           <div class="modal__actions">
-            <button class="btn" id="editApptSave" type="button">Зберегти</button>
+            <button class="btn-primary" id="editApptSave" type="button">Зберегти</button>
           </div>
         </div>
       </div>`;
@@ -677,7 +677,7 @@ function rowHTML(r, { soft }) {
       </div>
 
       <div class="row-right">
-        <button class="btn_dash js-edit-appt" title="Редагувати" aria-label="Редагувати" data-id="${r.id}">
+        <button class="btn-primary js-edit-appt" title="Редагувати" aria-label="Редагувати" data-id="${r.id}">
           Редагувати запис
         </button>
       </div>
