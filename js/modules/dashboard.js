@@ -420,9 +420,9 @@ export async function render(root) {
               <input id="editPaid" class="toggle-input" type="checkbox">
               Оплачено
             </label>
-          </div>
-          <div class="modal__actions">
-            <button class="btn-primary" id="editApptSave" type="button">Зберегти</button>
+            <div class="modal__actions modal__actions--inline">
+              <button class="btn-primary" id="editApptSave" type="button">Зберегти</button>
+            </div>
           </div>
         </div>
       </div>`;

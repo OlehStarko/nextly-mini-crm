@@ -225,125 +225,6 @@ input, select{
 }
 :root{ --vvh: 100dvh; } /* реальна висота вʼюпорта; оновимо її з JS */
 
-/* ================= Modal (глобальна) ================= */
-.modal{ position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 2000; contain: layout paint size; }
-.modal.open{ display:flex; }
-.modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.35); z-index:0; }
-
-.modal__dialog{
-  position: fixed;        /* важливо для iOS */
-  left: 50%;
-  transform: translateX(-50%); /* лише по X — без translateY */
-  top: max(12px, env(safe-area-inset-top));
-  width: 520px;
-  max-width: calc(100% - 32px);
-  max-height: min(calc(var(--vvh) * 0.80), 720px); /* до 80% екрана */
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  margin: 0;
-  border-radius: 20px;
-  background: #fff; 
-  z-index: 1;
-}
-.modal__dialog.modal__dialog--dashboard{
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  margin: 0;
-}
-.modal input,
-.modal select,
-.modal textarea {
-  font-size: 16px !important;
-  -webkit-text-size-adjust: 100%;
-}
-/* Запобігає авто-зуму в iOS Safari */
-@supports (-webkit-touch-callout: none) {
-  .modal input,
-  .modal select,
-  .modal textarea {
-    font-size: 16px;
-  }
-}
-/* На мобільних — ті самі поля, що і контент */
-.modal-open { overflow: hidden; }
-@media (max-width: 600px) {
-  .modal {
-    padding-inline: 16px; /* створює відступи зліва/справа */
-  }
-
-  .modal__dialog {
-    width: 100%;
-    max-width: none;
-    margin: 0 auto;
-    border-radius: 16px;
-  }
-
-  .modal__body {
-    padding-inline: 0;
-  }
-
-  .modal__header,
-  .modal__actions {
-    padding-inline: 0;
-  }
-}
-/* шапка/тіло/футер всередині */
-.modal__header{
-  position: sticky;
-  top: 0;
-  background:#fff;
-  z-index: 2;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:16px;
-}
-.modal__body{
-  padding:16px;
-  display:grid;
-  gap:16px;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-}
-.modal__body > *:not(.modal__actions){ width:100%; }
-.modal__body > label{ display:flex; flex-direction:column; gap:6px; }
-.modal__body--clients{
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-}
-.modal__body--clients > label:nth-of-type(1),
-.modal__body--clients > label:nth-of-type(3){
-  grid-column:1 / 2;
-}
-.modal__body--clients > label:nth-of-type(2),
-.modal__body--clients > label:nth-of-type(4){
-  grid-column:2 / 3;
-}
-.modal__body--clients .client-modal__preview{
-  grid-column:1 / -1;
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-
-.modal__actions{
-  position: sticky;
-  bottom: 0;
-  background:#fff;
-  padding:16px;
-  z-index: 2;
-  display:flex;
-  gap:12px;
-  justify-content:flex-end;
-}
-
-/* коли відкрита клавіатура — прибираємо анімації/трансформації, щоб не ламались хіт-тести */
-.html-kb-open *{ transition:none !important; animation:none !important; }
-.modal__title{ font-size:18px; font-weight:600; }
-
-
-.modal__close{ background:#f6f6f6; border:1px solid #e5e5e5; }
-
 /* ================= Avatars / user badge ================= */
 .avatar{
   width:40px; height:40px; border-radius:50%;
@@ -464,10 +345,13 @@ input, select{
 .topbar, main#app, .footer-content{
   padding-left:0; padding-right:0;
   margin-left:auto; margin-right:auto;
-  max-width:1200px; width:100%;  
+  max-width:1200px; width:100%;  padding-left:24px; padding-right:24px;
 }
 @media (min-width:728px){
   .topbar, main#app, .footer-content{ padding-left:32px; padding-right:32px; }
+}
+@media (max-width:899px){
+  main#app{  margin-top: 64px; }
 }
 @media (max-width:899px){
   .topbar{ background-color: #fff; margin-top: 0px; }
@@ -488,7 +372,7 @@ input, select{
 .footer-content{
   display: flex;
   justify-content: center; align-items: center; flex-wrap: wrap;
-  width: 100%; max-width: 1200px; padding: 0 32px; margin: 0 auto;
+  width: 100%; max-width: 1200px; padding: 24px 32px; margin: 0 auto;
 }
 .footer-left{ font-weight:500; }
 .footer-right a{ color:#0077cc; text-decoration:none; margin-left:12px; }

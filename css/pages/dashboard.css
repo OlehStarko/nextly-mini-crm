@@ -169,23 +169,6 @@ align-items: flex-start}
 @media (max-width:560px){  .btn_dash{ margin-top: 24px;} }
 
 /* === Modal close button (у стилі кнопки бургера) === */
-.modal__close{
-  all: unset;
-  box-sizing: border-box;
-  display:flex; align-items:center; justify-content:center;
-  width:32px; height:32px;
-  border-radius:10px;
-  background-color:#fff !important;
-  background-repeat:no-repeat; background-position:center; background-size:18px 18px;
-
-  cursor:pointer; transition:all .2s ease;
-}
-.modal__close:hover{ background-color:#1f1f1f; filter:invert(1); transform:translateY(-1px); }
-.modal__close:active{ transform:translateY(0); }
-
-
-
-
 .badge_price{
   display: flex;
   gap: 16px;
@@ -198,7 +181,7 @@ margin-top: 16px;
 
 /* ==== Modal form: tidy inputs/selects ====. */
 /* ====== DIALOG ====== */
-.modal__dialog {
+.page--dashboard .modal__dialog {
   position: relative;
   background: #fff;
   border-radius: 20px;
@@ -211,13 +194,13 @@ margin-top: 16px;
   -webkit-overflow-scrolling: touch;
 }
 
-.modal__header {
+.page--dashboard .modal__header {
   padding: 24px;
   border-bottom: 1px solid #eef2f6;
 }
 
 /* ====== BODY (вміст модалки) ====== */
-.modal__body {
+.page--dashboard .modal__body {
   flex: 1 1 auto;
   overflow-y: auto;           /* скролиться лише всередині */
   padding: 20px;
@@ -228,13 +211,13 @@ margin-top: 16px;
 }
 
 @media (min-width: 700px) {
-  .modal__body {
+  .page--dashboard .modal__body {
     grid-template-columns: repeat(2, minmax(0,1fr));
   }
 }
 
 /* label above field */
-.modal__body > label {
+.page--dashboard .modal__body > label {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -243,11 +226,11 @@ margin-top: 16px;
 }
 
 /* inputs/selects look */
-.modal__body input[type="text"],
-.modal__body input[type="number"],
-.modal__body input[type="date"],
-.modal__body input[type="time"],
-.modal__body select {
+.page--dashboard .modal__body input[type="text"],
+.page--dashboard .modal__body input[type="number"],
+.page--dashboard .modal__body input[type="date"],
+.page--dashboard .modal__body input[type="time"],
+.page--dashboard .modal__body select {
   appearance: none;
   width: 100%;
   height: 48px;
@@ -261,25 +244,25 @@ margin-top: 16px;
   transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
   box-shadow: inset 0 1px 0 rgba(16,24,40,.03);
 }
-.modal__body input:focus,
-.modal__body select:focus {
+.page--dashboard .modal__body input:focus,
+.page--dashboard .modal__body select:focus {
   border-color: #93c5fd;
   box-shadow: 0 0 0 4px rgba(147,197,253,.35);
 }
 
 /* subtle hover */
-.modal__body input:hover,
-.modal__body select:hover {
+.page--dashboard .modal__body input:hover,
+.page--dashboard .modal__body select:hover {
   border-color: #dbe7f3;
 }
 
 /* date/time & number fixes */
-.modal__body input[type="number"]::-webkit-outer-spin-button,
-.modal__body input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.modal__body input[type="number"] { -moz-appearance: textfield; }
+.page--dashboard .modal__body input[type="number"]::-webkit-outer-spin-button,
+.page--dashboard .modal__body input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.page--dashboard .modal__body input[type="number"] { -moz-appearance: textfield; }
 
 /* select arrow */
-.modal__body select {
+.page--dashboard .modal__body select {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
   background-repeat: no-repeat;
   background-position: right 12px center;
@@ -291,7 +274,7 @@ margin-top: 16px;
 #editClientSel, #editServiceSel { grid-column: 1 / -1; }
 
 /* footer */
-.modal__actions {
+.page--dashboard .modal__actions {
   padding: 14px 24px;
   border-top: 1px solid #eef2f6;
   background: #fff;
@@ -300,7 +283,7 @@ margin-top: 16px;
   gap: 10px;
 }
 /* ====== BACKDROP ====== */
-.modal {
+.page--dashboard .modal {
   position: fixed;
   inset: 0;
   z-index: 999;
@@ -311,27 +294,27 @@ margin-top: 16px;
   overflow-y: auto;        /* якщо модалка дуже висока */
   -webkit-overflow-scrolling: touch;
 }
-  .modal{ display:none; }
-.modal::before {
+  .page--dashboard .modal{ display:none; }
+.page--dashboard .modal::before {
   content: "";
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
   z-index: -1; /* щоб фон не перекривав модалку */
 }
-.modal__actions .btn:hover { opacity: .92; }
-.modal__actions .btn:active { transform: translateY(1px); }
+.page--dashboard .modal__actions .btn:hover { opacity: .92; }
+.page--dashboard .modal__actions .btn:active { transform: translateY(1px); }
 
 
 
 /* ====== Забороняємо скрол сторінки під модалкою ====== */
-body.modal-open {
+.page--dashboard body.modal-open {
   overflow: hidden;
 }
 /* Кнопки/хедер не «стрибають» */
 /* ====== HEADER і FOOTER не скроляться ====== */
-.modal__header,
-.modal__footer {
+.page--dashboard .modal__header,
+.page--dashboard .modal__footer {
   flex: 0 0 auto;
   padding: 16px 20px;
   background: #fff;
@@ -339,23 +322,23 @@ body.modal-open {
 }
 /* Fallback для браузерів без dvh (деякі Safari/старі Chrome) */
 @supports not (height: 100dvh) {
-  .modal { min-height: -webkit-fill-available; }
-  .modal__dialog { max-height: calc(-webkit-fill-available - 32px); }
+  .page--dashboard .modal { min-height: -webkit-fill-available; }
+  .page--dashboard .modal__dialog { max-height: calc(-webkit-fill-available - 32px); }
 }
 
 
-.modal__footer {
+.page--dashboard .modal__footer {
   border-top: 1px solid #eee;
   border-bottom: none;
 }
 
 /* ====== Додатково: для малих екранів підняти трохи вище ====== */
 @media (max-width: 480px) {
-  .modal {
+  .page--dashboard .modal {
     align-items: flex-end; /* щоб модалка “виїжджала знизу” */
   }
 
-  .modal__dialog {
+  .page--dashboard .modal__dialog {
     border-radius: 20px 20px 0 0;
     width: 100%;
     max-height: 80dvh;
@@ -364,18 +347,18 @@ body.modal-open {
 
     /* modal */
   
-    .modal.open{ display:block; }
-    .modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.4); }
-    .modal__dialog{ position:relative; max-width:520px; margin:12vh auto; background:#fff; border-radius:12px; overflow:hidden; }
-    .modal__header{ display:flex; align-items:center; justify-content:space-between; padding:24px; border-bottom:1px solid #eee; }
-    .modal__title{ font-weight:700; }
-    .modal__body{  display:grid; gap:12px; }
-    .modal__actions{ padding:24px 24px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:flex-start; }
-    .modal__close{ border:none; background:transparent; font-size:18px; cursor:pointer; }
+    .page--dashboard .modal.open{ display:block; }
+    .page--dashboard .modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.4); }
+    .page--dashboard .modal__dialog{ position:relative; max-width:520px; margin:12vh auto; background:#fff; border-radius:12px; overflow:hidden; }
+    .page--dashboard .modal__header{ display:flex; align-items:center; justify-content:space-between; padding:24px; border-bottom:1px solid #eee; }
+    .page--dashboard .modal__title{ font-weight:700; }
+    .page--dashboard .modal__body{  display:grid; gap:12px; }
+    .page--dashboard .modal__actions{ padding:24px 24px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:flex-start; }
+    .page--dashboard .modal__close{ border:none; background:transparent; font-size:18px; cursor:pointer; }
     .grid{ display:grid; gap:12px; grid-template-columns:repeat(2, minmax(0,1fr)); }
     @media (max-width:720px){ .grid{ grid-template-columns:1fr; } }
 
-#editApptModal .modal__dialog {
+.page--dashboard #editApptModal .modal__dialog {
   position: fixed;
   top: 50%;
   left: 50%;
@@ -386,7 +369,7 @@ body.modal-open {
 }
 
 @media (max-width: 560px) {
-  #editApptModal .modal__dialog {
+  .page--dashboard #editApptModal .modal__dialog {
     width: calc(100vw - 24px);
   }
 }
