@@ -217,7 +217,15 @@ input, select{
   border:1px solid #e9eef5;
   box-shadow:0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);
 }
+@media (max-width:500px){
+  .list li{ display:flex;flex-direction: column}
 
+}
+
+@media (max-width:500px){
+  .client-card__actions{ justify-content: flex-start}
+
+}
 /* бейджі (базові) */
 .badge{
   display:inline-flex; align-items:center; gap:6px; background:#f6f6f6; border:1px solid #eee;
