@@ -22,47 +22,10 @@ const routes = {
   '/contact': Contact.render,
   '/auth': Auth.render,
 };
-// створюємо "слот" для юзер-блоку всередині <nav id="nav">, якщо його ще нема
-function ensureDrawerUserSlot() {
-  const nav = document.getElementById('nav');
-  if (!nav) return null;
-
-  let slot = nav.querySelector('#drawerUser');
-  if (!slot) {
-    slot = document.createElement('div');
-    slot.id = 'drawerUser';
-    slot.className = 'drawer-user';
-    // вставляємо на початок меню
-    nav.prepend(slot);
-  }
-  return slot;
-}
-
-// малюємо користувача у бургері
+// малюємо користувача у бургері (тепер блок не використовується, тож просто очищаємо)
 function renderDrawerUser() {
   const box = document.getElementById('drawerUser');
-  if (!box) return;
-
-  const u = session().user;
-  if (!u) { box.hidden = true; box.innerHTML = ''; return; }
-
-  const initials = (u.displayName || u.email || 'U')
-    .split(/\s+/).map(s => s[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
-
-  box.innerHTML = `
-    <div class="du-ava" aria-hidden="true">${initials}</div>
-    <div class="du-meta">
-      <div class="du-name">${u.displayName || u.email || 'Користувач'}</div>
-      <button class="du-logout" id="drawerLogout" type="button">Вийти</button>
-    </div>
-  `;
-  box.hidden = false;
-
-  box.querySelector('#drawerLogout')?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    await signOutAll();
-    location.hash = '/auth';
-  }, { once: true });
+  box?.remove();
 }
 
 // ініціалізація

@@ -2,11 +2,10 @@ import { clientsList, clientsSearch, clientCreate, clientUpdate, clientRemove, c
 
 export async function render(root) {
   root.innerHTML = `
-    <section class="section">
-      <header style="display:flex;gap:8px;align-items:center;flex-wrap:wrap; justify-content: space-between;">
-     <input id="q" placeholder="Пошук по імені або телефону" />
-        <button id="add">+ Додати клієнта</button>
-        
+    <section class="section clients-page">
+      <header class="clients-page__header">
+        <input id="q" placeholder="Пошук по імені або телефону" />
+        <button id="add" class="btn-cl btn-cl--primary">+ Додати клієнта</button>
       </header>
       <ul id="list" class="list" style="margin-top:12px;"></ul>
     </section>
@@ -14,43 +13,42 @@ export async function render(root) {
     <!-- Modal -->
     <div class="modal" id="clientModal" aria-hidden="true" role="dialog" aria-labelledby="clientModalTitle">
       <div class="modal__backdrop" data-close="1"></div>
-      <div class="modal__dialog">
+      <div class="modal__dialog modal__dialog--dashboard">
         <div class="modal__header">
           <div class="modal__title" id="clientModalTitle">Новий клієнт</div>
           <button type="button" class="modal__close" data-close="1" aria-label="Закрити">✕</button>
         </div>
-        <form id="clientForm" class="modal__body">
+        <form id="clientForm" class="modal__body modal__body--clients">
           <input type="hidden" id="clientId" />
-          <div class="grid">
-            <div>
-              <label for="clientName">Ім’я</label>
-              <input id="clientName" name="name" required placeholder="Напр., Ольга" />
-            </div>
-            <div>
-              <label for="clientPhone">Телефон</label>
-              <input id="clientPhone" name="phone" placeholder="+380..." />
-            </div>
-          </div>
+          
+          <label for="clientName">
+            <span>Ім’я</span>
+            <input id="clientName" name="name" required placeholder="Напр., Ольга" />
+          </label>
 
-          <div class="grid" style="align-items:end;">
-            <div>
-              <label for="clientBirthdate">Дата народження</label>
-              <input id="clientBirthdate" type="date" />
-            </div>
-            <div>
-              <label for="clientPhoto">Фото</label>
-              <input id="clientPhoto" type="file" accept="image/*" />
-            </div>
-          </div>
+          <label for="clientPhone">
+            <span>Телефон</span>
+            <input id="clientPhone" name="phone" placeholder="+380..." />
+          </label>
 
-          <div style="display:flex; gap:12px; align-items:center;">
+          <label for="clientBirthdate">
+            <span>Дата народження</span>
+            <input id="clientBirthdate" type="date" />
+          </label>
+
+          <label for="clientPhoto">
+            <span>Фото</span>
+            <input id="clientPhoto" type="file" accept="image/*" />
+          </label>
+
+          <div class="client-modal__preview">
             <img id="clientPhotoPreview" class="avatar" alt="прев’ю" style="display:none;" />
             <div id="clientAgeBadge" class="badge" style="display:none;"></div>
           </div>
 
           <div class="modal__actions">
-            <button type="button" class="modal__close" data-close="1">Скасувати</button>
-            <button type="submit">Зберегти</button>
+            <button type="button" class="btn-cl btn-cl--ghost" data-close="1">Скасувати</button>
+            <button type="submit" class="btn-cl btn-cl--primary">Зберегти</button>
           </div>
         </form>
       </div>
@@ -59,7 +57,7 @@ export async function render(root) {
     <!-- Modal: історія відвідувань -->
     <div class="modal" id="historyModal" aria-hidden="true">
       <div class="modal__backdrop" data-close="1"></div>
-      <div class="modal__dialog">
+      <div class="modal__dialog modal__dialog--dashboard">
         <div class="modal__header">
           <div class="modal__title" id="historyTitle">Історія відвідувань</div>
           <button class="modal__close" data-close="1" aria-label="Закрити">✕</button>
@@ -86,18 +84,18 @@ export async function render(root) {
         : `<span class="avatar__fallback">${initials(item.name)}</span>`;
       return `
         <li>
-          <div style="display:flex; gap:10px; align-items:center;">
+          <div class="client-card__main">
             ${avatar}
-            <div>
+            <div class="client-card__info">
               <div><strong>${escapeHtml(item.name)}</strong></div>
               <div style="opacity:.7">${escapeHtml(item.phone || '')}</div>
               ${ageText}
             </div>
           </div>
-          <div style="display:flex; gap:8px;">
-            <button data-history="${item.id}">Історія</button>
-            <button class="paid" data-edit="${item.id}">Редагувати</button>
-            <button class="unpaid" data-del="${item.id}">Видалити</button>
+          <div class="client-card__actions">
+            <button class="btn-cl btn-cl--ghost" data-history="${item.id}">Історія</button>
+            <button class="btn-cl btn-cl--primary" data-edit="${item.id}">Редагувати</button>
+            <button class="btn-cl btn-cl--danger" data-del="${item.id}">Видалити</button>
           </div>
         </li>
       `;

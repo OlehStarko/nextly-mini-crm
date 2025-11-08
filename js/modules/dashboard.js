@@ -265,13 +265,57 @@ export async function render(root) {
   // Горизонтальний скрол колесиком
   if (daysWrapEl && !daysWrapEl.__wheel) {
     daysWrapEl.addEventListener('wheel', (e) => {
-      const horiz = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      if (horiz !== 0) {
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (delta !== 0) {
         e.preventDefault();
-        daysWrapEl.scrollLeft += horiz;
+        daysWrapEl.scrollLeft += delta;
       }
     }, { passive: false });
     daysWrapEl.__wheel = true;
+  }
+
+  // Drag-to-scroll курсором (і стилусом/тачем)
+  if (daysWrapEl && !daysWrapEl.__drag) {
+    let isPointerDown = false;
+    let startX = 0;
+    let scrollStart = 0;
+    let dragMoved = false;
+    let pressedDay = null;
+
+    const endDrag = (e) => {
+      if (!isPointerDown) return;
+      isPointerDown = false;
+      daysWrapEl.classList.remove('dragging');
+      daysWrapEl.releasePointerCapture?.(e.pointerId);
+      if (!dragMoved && pressedDay) {
+        pressedDay.click();
+      }
+      pressedDay = null;
+    };
+
+    daysWrapEl.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 && e.pointerType === 'mouse') return;
+      isPointerDown = true;
+      dragMoved = false;
+      startX = e.clientX;
+      scrollStart = daysWrapEl.scrollLeft;
+      pressedDay = e.target.closest('.cal-day');
+      daysWrapEl.classList.add('dragging');
+      daysWrapEl.setPointerCapture?.(e.pointerId);
+    });
+
+    daysWrapEl.addEventListener('pointermove', (e) => {
+      if (!isPointerDown) return;
+      const deltaX = e.clientX - startX;
+      if (Math.abs(deltaX) > 3) dragMoved = true;
+      daysWrapEl.scrollLeft = scrollStart - deltaX;
+      e.preventDefault();
+    }, { passive: false });
+
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(evt =>
+      daysWrapEl.addEventListener(evt, endDrag));
+
+    daysWrapEl.__drag = true;
   }
 
   // Список за обраний день
@@ -347,7 +391,7 @@ export async function render(root) {
     el.innerHTML = `
       <div class="modal" id="editApptModal" role="dialog" aria-modal="true">
         <div class="modal__backdrop"></div>
-        <div class="modal__dialog">
+        <div class="modal__dialog modal__dialog--dashboard">
           <div class="modal__header">
             <div class="modal__title">Редагувати запис</div>
             <button class="modal__close" id="editApptClose" type="button" aria-label="Закрити">
@@ -372,7 +416,10 @@ export async function render(root) {
                 <option value="canceled">Скасовано</option>
               </select>
             </label>
-            <label><input id="editPaid" type="checkbox"> Оплачено</label>
+            <label class="toggle-field">
+              <input id="editPaid" class="toggle-input" type="checkbox">
+              Оплачено
+            </label>
           </div>
           <div class="modal__actions">
             <button class="btn-primary" id="editApptSave" type="button">Зберегти</button>

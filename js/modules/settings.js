@@ -1,8 +1,34 @@
-export async function render(root) {
-  // moved CSS to external file
+import { session, signOutAll } from '../store/session.js';
 
+export async function render(root) {
+  const user = session()?.user;
+  const displayName = user?.displayName || user?.email || 'Користувач';
+  const email = user?.email && user?.email !== displayName ? user.email : '';
+  const initials = (displayName || '')
+    .split(/\s+/)
+    .map(part => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  const userCard = user ? `
+    <section class="settings-user-mobile">
+      <div class="settings-user-card">
+        <div class="settings-user-meta">
+          <div class="avatar" aria-hidden="true">${initials || 'U'}</div>
+          <div>
+            <div class="settings-user-name">${displayName}</div>
+            ${email ? `<div class="settings-user-email">${email}</div>` : ''}
+          </div>
+        </div>
+        <button type="button" class="settings-user-logout" id="settingsLogout">Вийти</button>
+      </div>
+    </section>
+  ` : '';
 
   root.innerHTML = `
+    ${userCard}
     <section>
       <div class="card">
         <div class="h3">Основні налаштування</div>
@@ -28,18 +54,21 @@ export async function render(root) {
     </section>
   `;
 
-  // локальні базові налаштування
   const langEl = root.querySelector('#lang');
   const curEl  = root.querySelector('#currency');
-  langEl.value = localStorage.getItem('ui.lang') || 'uk';
-  curEl.value  = localStorage.getItem('ui.currency') || 'UAH';
-  langEl.addEventListener('change', () => localStorage.setItem('ui.lang', langEl.value));
-  curEl.addEventListener('change',  () => localStorage.setItem('ui.currency', curEl.value));
+  if (langEl) langEl.value = localStorage.getItem('ui.lang') || 'uk';
+  if (curEl) curEl.value = localStorage.getItem('ui.currency') || 'UAH';
+  langEl?.addEventListener('change', () => localStorage.setItem('ui.lang', langEl.value));
+  curEl?.addEventListener('change',  () => localStorage.setItem('ui.currency', curEl.value));
+
+  const logoutBtn = root.querySelector('#settingsLogout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      try {
+        await signOutAll();
+      } catch (_) {}
+      location.hash = '/auth';
+    });
+  }
 }
 
-/* utils */
-function injectOnce(id, css) {
-  if (document.getElementById(id)) return;
-  const s = document.createElement('style'); s.id = id; s.textContent = css;
-  document.head.appendChild(s);
-}

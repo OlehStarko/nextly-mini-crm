@@ -1,4 +1,4 @@
-html { scrollbar-gutter: auto !important; }
+html { scrollbar-gutter: stable both-edges !important; }
 /* обмежуємося простором сторінки */
 .page--dashboard .h3{ font-size:18px; font-weight:700; margin:16px 0 10px; }
 
@@ -93,7 +93,7 @@ align-items: flex-start}
   display:flex; flex-wrap:nowrap; align-items:center; gap:12px;
   padding:12px 24px;
   overflow-x:auto; overflow-y:visible;
-  scroll-behavior:smooth; -webkit-overflow-scrolling:touch;
+  scroll-behavior:auto; -webkit-overflow-scrolling:auto;
   cursor:grab; overscroll-behavior:contain;
 }
 .page--dashboard .calendar-strip__days.dragging{ cursor:grabbing; user-select:none; }
@@ -212,7 +212,7 @@ margin-top: 16px;
 }
 
 .modal__header {
-  padding: 16px 20px;
+  padding: 24px;
   border-bottom: 1px solid #eef2f6;
 }
 
@@ -222,6 +222,9 @@ margin-top: 16px;
   overflow-y: auto;           /* скролиться лише всередині */
   padding: 20px;
   -webkit-overflow-scrolling: touch;
+  display:grid;
+  gap:16px;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
 }
 
 @media (min-width: 700px) {
@@ -247,7 +250,7 @@ margin-top: 16px;
 .modal__body select {
   appearance: none;
   width: 100%;
-  height: 44px;
+  height: 48px;
   padding: 10px 14px;
   font-size: 15px;
   color: #0f172a;
@@ -287,50 +290,13 @@ margin-top: 16px;
 /* make some fields span full width on desktop */
 #editClientSel, #editServiceSel { grid-column: 1 / -1; }
 
-/* Toggle style for the "Оплачено" checkbox (id=editPaid) */
-#editPaid {
-  appearance: none;
-  width: 42px;
-  height: 26px;
-  border-radius: 999px;
-  background: #e5e7eb;
-  position: relative;
-  transition: background-color .15s ease;
-  border: 1px solid #d1d5db;
-}
-#editPaid::after {
-  content: "";
-  position: absolute;
-  top: 50%; left: 4px;
-  width: 18px; height: 18px;
-  border-radius: 50%;
-  background: #fff;
-  transform: translateY(-50%);
-  box-shadow: 0 1px 2px rgba(16,24,40,.15);
-  transition: left .15s ease;
-}
-#editPaid:checked {
-  background: #22c55e;
-  border-color: #22c55e;
-}
-#editPaid:checked::after { left: 40px; }
-
-/* place the checkbox row nicely */
-#editPaid { margin-right: 8px; }
-label.toggle-paid {
-  align-items: center;
-  flex-direction: row;
-  gap: 10px;
-  grid-column: 1 / -1;
-}
-
 /* footer */
 .modal__actions {
-  padding: 14px 20px;
+  padding: 14px 24px;
   border-top: 1px solid #eef2f6;
   background: #fff;
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
   gap: 10px;
 }
 /* ====== BACKDROP ====== */
@@ -401,10 +367,26 @@ body.modal-open {
     .modal.open{ display:block; }
     .modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.4); }
     .modal__dialog{ position:relative; max-width:520px; margin:12vh auto; background:#fff; border-radius:12px; overflow:hidden; }
-    .modal__header{ display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #eee; }
+    .modal__header{ display:flex; align-items:center; justify-content:space-between; padding:24px; border-bottom:1px solid #eee; }
     .modal__title{ font-weight:700; }
-    .modal__body{ padding:14px; display:grid; gap:12px; }
-    .modal__actions{ padding:12px 14px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:flex-end; }
+    .modal__body{  display:grid; gap:12px; }
+    .modal__actions{ padding:24px 24px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:flex-start; }
     .modal__close{ border:none; background:transparent; font-size:18px; cursor:pointer; }
     .grid{ display:grid; gap:12px; grid-template-columns:repeat(2, minmax(0,1fr)); }
     @media (max-width:720px){ .grid{ grid-template-columns:1fr; } }
+
+#editApptModal .modal__dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: min(640px, calc(100vw - 32px));
+  max-height: min(90dvh, calc(100vh - 32px));
+}
+
+@media (max-width: 560px) {
+  #editApptModal .modal__dialog {
+    width: calc(100vw - 24px);
+  }
+}
