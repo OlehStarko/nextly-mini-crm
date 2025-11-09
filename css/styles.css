@@ -1,0 +1,717 @@
+:root{
+  --bg:#F4F9FD; --fg:#111; --muted:#666; --b:#e8e8e8; --primary:#111;
+  --topbar-h: 64px;
+}
+
+/* стабілізація скролбара (прибирає вертикальні/горизонтальні стрибки) */
+html{
+  overflow-y: auto;
+}
+
+html, body {
+  height: 100%;
+  margin: 0 !important; padding: 0 !important;
+
+  font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  color: #111827;
+  letter-spacing: -0.2px;
+  background-color: #EFF7FA;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+  font-size:15px;
+  line-height:1;
+  letter-spacing:0.2px;
+  padding-top:32px;
+  margin:0;
+}
+
+button, input, select, textarea{ font-family:inherit; }
+
+/* ================= Layout ================= */
+main#app{
+  flex:1 0 auto;
+  width:100%;
+  max-width:1200px;
+  margin:0 auto;
+  padding:16px;
+}
+
+@media (max-width:1024px){
+  main#app{ max-width:960px; padding:12px; }
+}
+@media (max-width:768px){
+  main#app{ max-width:600px; padding:10px; }
+}
+@media (max-width:480px){
+  main#app{ max-width:100%; padding:8px; }
+}
+
+.container{ max-width:980px; margin:20px auto; padding:0 16px; }
+.section{ margin-top:24px; }
+
+/* ================= Buttons / Inputs (базові) ================= */
+.btn, button{
+  appearance:none;
+  padding:14px 18px;
+  border-radius:16px;
+  background-color:#1B1B1B;
+  border:1px solid #e9eef5;
+  cursor:pointer;
+}
+.btn:hover, button:hover{ background:#f6f6f6; }
+
+input:not([type="checkbox"]):not([type="radio"]), select{
+  padding:14px 18px;
+  border-radius:16px;
+  background:#fff;
+  height:48px;
+  border:none;
+  box-shadow:0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);
+  box-sizing:border-box;
+}
+input:not([type="checkbox"]):not([type="radio"]), select, textarea{
+  font-size:16px;
+}
+
+/* Unified checkbox styling */
+input[type="checkbox"]{
+  appearance:none;
+  width:18px;
+  height:18px;
+  border-radius:6px;
+  border:2px solid #cbd5f5;
+  background:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .2s ease, border-color .2s ease, box-shadow .2s ease;
+  cursor:pointer;
+  position:relative;
+}
+input[type="checkbox"]::after{
+  content:"";
+  width:6px;
+  height:6px;
+
+  margin-top: -3px;
+  border-radius:0;
+  border:2px solid #fff;
+  border-top:none;
+  border-left:none;
+  transform:translate(-1px,-1px) rotate(45deg) scale(0);
+  transition:transform .15s ease;
+}
+input[type="checkbox"]:checked{
+  background:#2563eb;
+  border-color:#2563eb;
+  box-shadow:0 2px 8px rgba(37,99,235,.35);
+}
+input[type="checkbox"]:checked::after{
+  transform:rotate(45deg) scale(1);
+}
+input[type="checkbox"]:focus-visible{
+  outline:2px solid rgba(37,99,235,.6);
+  outline-offset:2px;
+}
+
+/* Unified toggle switch (for modal checkboxes like "Оплачено") */
+.toggle-input{
+  appearance:none;
+  width:46px; height:28px;
+  border-radius:999px;
+  background:#e5e7eb;
+  border:1px solid #d1d5db;
+  position:relative;
+  cursor:pointer;
+  transition:background-color .2s ease, border-color .2s ease;
+  flex-shrink:0;
+}
+.toggle-input::after{
+  content:"";
+  position:absolute;
+  top:50%; left:4px;
+  width:18px; height:18px;
+  border-radius:50%;
+  background:#fff;
+  box-shadow:0 1px 2px rgba(16,24,40,.15);
+  transform:translateY(-50%);
+  transition:left .2s ease;
+}
+.toggle-input:checked{
+  background:#22c55e;
+  border-color:#22c55e;
+}
+.toggle-input:checked::after{
+  left:calc(100% - 22px);
+}
+.toggle-input:focus-visible{
+  outline:2px solid #111;
+  outline-offset:2px;
+}
+.modal .toggle-input{ margin-right:8px; }
+.modal label.toggle-field{
+  flex-direction:row;
+  align-items:center;
+  gap:10px;
+  grid-column:1 / -1;
+}
+
+/* Ікон-кнопка (базова) */
+.btn--icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:40px; height:40px;
+  padding:0;
+  border-radius:16px;
+  background:#1b1b1b;
+  color:#fff;
+}
+.btn--icon svg{ width:18px; height:18px; display:block; }
+
+/* ===== Buttons for Clients page ===== */
+.btn-cl{
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  padding:10px 24px;
+  min-height:48px;
+  max-height:48px;
+  background:#fff;
+  color:#111827;
+  font-weight:600;
+  font-size:14px;
+  cursor:pointer;
+  transition:background .2s ease, color .2s ease, border-color .2s ease, transform .15s ease;
+  box-shadow:0 2px 6px rgba(15,23,42,.07);
+  white-space:nowrap;
+}
+.btn-cl:hover{ transform:translateY(-1px); }
+.btn-cl:active{ transform:translateY(0); }
+.btn-cl--primary{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+  box-shadow:0 8px 18px rgba(17,17,17,.18);
+  transition:background .2s ease, border-color .2s ease, transform .15s ease;
+}
+.btn-cl--primary:hover{
+  background:#3A3A3A;
+  border-color:#3A3A3A;
+}
+.btn-cl--ghost{
+  background:#fff;
+  color:#111827;
+}
+.btn-cl--danger{
+  background:#fee2e2;
+  border-color:#fecaca;
+  color:#b91c1c;
+  box-shadow:none;
+}
+.btn-cl:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
+}
+.btn-inline{
+  background:none;
+  border:none;
+  padding:0;
+  color:#2563eb;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-inline:hover{
+  text-decoration:underline;
+}
+.text-danger{
+  color:#dc2626;
+}
+
+/* Clients page layout helpers */
+.clients-page__header{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  margin-bottom:32px;
+}
+.clients-page__header #q{
+  flex:1 1 260px;
+  min-width:220px;
+  height:48px;
+}
+.client-card__actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+.client-card__main{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+.client-card__info{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+/* Appointments page */
+.appointments-toolbar{
+  align-self:end;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:flex-end;
+  align-items:flex-end;
+}
+.status-filters{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+.status-filters label{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:14px;
+}
+.client-filter{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.client-filter label{
+  opacity:.8;
+  font-size:13px;
+}
+.appointments-summary{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin-bottom:8px;
+}
+
+/* Edit appointment page */
+.page--edit-appt,
+.page--edit-client,
+.page--client-history{
+  width:100%;
+  max-width:1200px;
+  margin:32px auto;
+}
+.edit-appt,
+.edit-client,
+.client-history{ width:100%; }
+.page--edit-appt .card,
+.page--edit-client .card,
+.page--client-history .card{
+  background:#fff;
+  border:1px solid #e9eef5;
+  border-radius:24px;
+  padding:24px;
+  box-shadow:0 12px 32px rgba(15,23,42,.08), 0 4px 12px rgba(15,23,42,.06);
+}
+.edit-appt__head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:24px;
+}
+.edit-appt__head h1{
+  margin:0;
+  font-size:24px;
+}
+.edit-appt__form{
+  display:grid;
+  gap:16px;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+}
+.edit-appt__form > *{ min-width:0; }
+.edit-appt__form label{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+.edit-appt__form label > input,
+.edit-appt__form label > select,
+.edit-appt__form label > textarea{
+  width:100%;
+  max-width:100%;
+}
+.edit-appt__toggle{
+  grid-column:1 / -1;
+  flex-direction:row;
+  align-items:center;
+  gap:12px;
+  width:auto;
+}
+.edit-appt__actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+  grid-column:1 / -1;
+}
+.client-history__summary{
+  display:grid;
+  gap:4px;
+  margin-bottom:16px;
+}
+.client-history__list .history-item{
+  grid-template-columns:1fr;
+}
+@media (max-width:700px){
+  .edit-appt__form{
+    grid-template-columns:1fr;
+  }
+  .edit-appt__actions{
+    flex-direction:column;
+    align-items:stretch;
+  }
+}
+
+/* ================= Списки / сітка (загальні утиліти) ================= */
+.grid{ display:grid; gap:12px; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); }
+.list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:24px; }
+.list li{
+  display:grid; grid-template-columns:1fr auto; gap:10px; padding:24px; border-radius:16px; background:#fff;
+  border:1px solid #e9eef5;
+  box-shadow:0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);
+}
+@media (max-width:899px){
+  .list li{ display:flex;flex-direction: column; 
+
+
+
+
+align-items: flex-start}
+
+}
+
+@media (max-width:500px){
+  .client-card__actions{ justify-content: flex-start}
+
+}
+/* бейджі (базові) */
+.badge{
+  display:inline-flex; align-items:center; gap:6px; background:#f6f6f6; border:1px solid #eee;
+  padding:4px 8px; border-radius:999px; font-size:12px; color:#444;
+}
+:root{ --vvh: 100dvh; } /* реальна висота вʼюпорта; оновимо її з JS */
+
+/* ================= Avatars / user badge ================= */
+.avatar{
+  width:40px; height:40px; border-radius:50%;
+  object-fit:cover; border:1px solid #eee; background:#111827;
+  flex-shrink:0;
+  display: flex;
+  justify-content: center;
+color: #fff;
+align-items: center;
+
+
+
+
+
+
+}
+.avatar--sm{ width:32px; height:32px; }
+.avatar__fallback,
+.user-badge .avatar{
+  width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+  background:#1B1B1B; color:#fff; font-weight:600; font-size:12px; text-transform:uppercase;
+}
+.user-badge{ display:flex; align-items:center; gap:.6rem; font-weight:500; }
+.username{ font-weight:500; color:#333; }
+#logout{ margin-left:.8rem; color:#666; text-decoration:none; font-size:.9rem; }
+#logout:hover{ text-decoration:underline; }
+
+/* ================= Header / Nav / Burger ================= */
+.topbar{
+  display:grid;
+  grid-template-columns:auto 1fr auto auto;
+  grid-template-areas:"brand nav user burger";
+  align-items:center; gap:12px;
+  margin-top: 24px;
+  
+  height:64px;
+
+  z-index:1000;
+}
+
+.nav-left   { grid-area:brand; display:flex; align-items:center; gap:8px; }
+.nav-center { grid-area:nav;   display:flex; gap:24px; align-items:center; justify-content:center; }
+.nav-right  { grid-area:user;  display:flex; align-items:center; gap:12px; justify-content:flex-end; }
+.burger     { grid-area:burger; justify-self:end; }
+.brand{ display:flex; align-items:center; gap:16px; }
+.logo{ width:48px; height:48px; object-fit:contain; }
+.app-name{ font-weight:500; letter-spacing:-0.3px; color:#222;font-size:24px }
+
+.nav-center a{ color:#171717; text-decoration:none; font-weight:500; padding:8px 0;}
+.nav-center a.active{ color:#000; }
+
+/* Burger button */
+.burger{
+  width:32px; height:32px; border:none; background:none; padding:6px; cursor:pointer;
+  display:none; align-items:center; justify-content:center;
+}
+.burger:hover{ background: transparent}
+.burger:active{ transform:scale(.96); }
+.burger-icon{ width:32px; height:32px; }
+.burger-close{ display:none; }
+.burger.is-open .burger-open{ display:none; }
+.burger.is-open .burger-close{ display:block; }
+
+/* Desktop (>=900px) */
+@media (min-width:900px){
+  .burger{ display:none !important; }
+  .nav-center{
+    position:static !important; inset:auto !important;
+    width:auto !important; height:auto !important;
+    transform:none !important; opacity:1 !important; pointer-events:auto !important;
+    z-index:auto !important;
+    transition:transform .35s ease, opacity .35s ease .05s;
+  }
+  .nav-right{ display:flex !important; }
+  .mobile-scrim{ opacity:0 !important; pointer-events:none !important; transition:none !important; z-index:-1 !important; }
+  .topbar{ position:static !important; z-index:1000; }
+}
+
+/* Mobile (<=899px): fullscreen menu */
+@media (max-width:899px){
+  .topbar{
+  
+    position:fixed !important; top:0; left:0; width:100%;
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 20px; background:transparent; z-index:1200;
+  }
+  .brand, .burger{ position:relative; z-index:1201; }
+  .logo{ width:40px; height:40px; }
+  .nav-right{ display:none !important; }
+
+  .nav-center{
+    position:fixed !important; inset:0 !important;
+    width:100vw !important; height:100dvh !important;
+    background:#fff; z-index:1100;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:32px;
+    padding:100px 16px 24px;
+    transform:translateY(-100%) !important; opacity:0 !important; pointer-events:none !important;
+    transition:none !important;
+  }
+  .nav-center.open{
+    transform:translateY(0) !important; opacity:1 !important; pointer-events:auto !important;
+    transition:transform .35s ease, opacity .35s ease !important;
+  }
+
+  .mobile-scrim{
+    position:fixed; inset:0; background:rgba(0,0,0,.5);
+    z-index:1099; opacity:0; pointer-events:none; transition:opacity .3s ease;
+  }
+  .mobile-scrim.show{ opacity:1; pointer-events:auto; }
+
+  .nav-center a{ font-size:22px; line-height:1; font-weight:400; color:#111; text-decoration:none; }
+  .nav-center a.active{ font-weight:700; }
+
+  body.nav-open{ overflow:hidden; touch-action:none; }
+  .burger{ display:flex !important; }
+}
+
+/* Поки auth не готовий — не показуємо правий блок, але місце тримаємо */
+.nav-right[data-auth="pending"] { opacity:0; pointer-events:none; }
+/* Коли готовий — показуємо */
+.nav-right[data-auth="ready"] { opacity:1; }
+/* Щоб не було зсувів по висоті під час приховування */
+.nav-right { min-height: 40px; display:flex; align-items:center; gap:10px; }
+.nav-right .username{ display:inline-block; }
+
+/* Єдині горизонтальні відступи для ключових блоків */
+.topbar, main#app, .footer-content{
+  padding-left:0; padding-right:0;
+  margin-left:auto; margin-right:auto;
+   width:100%;  padding-left:24px; padding-right:24px;
+}
+@media (min-width:728px){
+  .topbar, main#app, .footer-content{ padding-left:32px; padding-right:32px; }
+}
+@media (max-width:899px){
+  main#app{  margin-top: 64px; }
+}
+@media (max-width:899px){
+  .topbar{ background-color: #fff; margin-top: 0px; }
+  body{ padding-top: var(--topbar-h); }
+}
+
+/* ================= Footer ================= */
+.footer{
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  padding: 16px 0;
+  font-size: 14px;
+  color: #4b5563;
+  width: 100%;
+}
+.footer-content{
+  display: flex;
+  justify-content: center; align-items: center; flex-wrap: wrap;
+  width: 100%; max-width: 1200px; padding: 24px 32px; margin: 0 auto;
+}
+.footer-left{ font-weight:500; }
+.footer-right a{ color:#0077cc; text-decoration:none; margin-left:12px; }
+.footer-right a:hover{ text-decoration:underline; }
+@media (max-width:720px){
+  .footer-content{ flex-direction: column; gap: 6px; }
+}
+
+/* Сховати легасі-блоки з лінками, якщо вони раптом зʼявляються */
+.legal-links,
+.legal,
+.footer-legacy,
+body > div.legal-links,
+body > div:has(> a[href*="privacy"], > a[href*="terms"], > a[href*="contact"]) {
+  display: none !important;
+}
+strong{
+  font-size: 18px;
+}
+.page--auth .navbar,
+.page--auth .sidebar-toggle {
+  display: none !important;
+}
+
+/* Ховаємо іконку-бургер на сторінці авторизації на малих екранах */
+@media (max-width: 900px) {
+  .is-auth .sidebar-toggle,
+  .is-auth .burger,
+  .is-auth .hamburger,
+  .is-auth .menu-btn,
+  .is-auth [data-role="burger"] {
+    display: none !important;
+  }
+}
+
+
+
+/* Щоб пункти меню не прилипали до верхнього блока */
+@media (max-width: 900px) {
+  .nav-center.open a { display:block; padding:12px 16px; font-size:20px; }
+}
+/* ======= УНІВЕРСАЛЬНА КНОПКА ======= */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 14px 20px;
+  border: none;
+  border-radius: 14px;
+
+  background-color: #111;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.2;
+  text-decoration: none;
+
+  cursor: pointer;
+  transition: background-color 0.25s ease, transform 0.15s ease;
+}
+
+.btn-primary:hover {
+  background-color: #222;
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  background-color: #000;
+  transform: translateY(0);
+}
+
+.btn-primary:disabled,
+.btn-primary[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+/* ===== Toggle / Switch (єдиний стиль) =============================== */
+:root{
+  --sw-on: #22c55e;      /* зелений ввімкнено */
+  --sw-off:#e5e7eb;      /* сірий вимкнено   */
+  --sw-knob:#fff;        /* колір кружечка   */
+  --sw-ring:#2563eb33;   /* фокус-обводка    */
+}
+
+/* контейнер-лейбл, щоб усе клікабельне */
+.toggle{
+  --w: 48px;             /* ширина доріжки (md) */
+  --h: 28px;             /* висота доріжки (md) */
+  --p: 3px;              /* внутрішній відступ доріжки */
+  display:inline-flex; align-items:center; gap:10px; cursor:pointer;
+  user-select:none;
+}
+
+/* розміри */
+.toggle--sm{ --w: 40px; --h: 22px; --p: 2px; }
+.toggle--lg{ --w: 56px; --h: 32px; --p: 4px; }
+
+/* приховуємо системний чекбокс, але залишаємо його доступним */
+.toggle__input{
+  position:absolute; opacity:0; width:0; height:0;
+}
+
+/* доріжка */
+.toggle__track{
+  width:var(--w); height:var(--h);
+  background:var(--sw-off);
+  border-radius:999px;
+  box-shadow: inset 0 0 0 1px #0000000f;
+  position:relative;
+  transition: background .18s ease;
+}
+
+/* кружечок */
+.toggle__track::after{
+  content:"";
+  position:absolute; inset:var(--p) auto var(--p) var(--p);
+  width:calc(var(--h) - var(--p)*2);
+  height:calc(var(--h) - var(--p)*2);
+  background:var(--sw-knob);
+  border-radius:50%;
+  box-shadow: 0 1px 2px rgba(0,0,0,.2), 0 4px 12px rgba(0,0,0,.12);
+  transition: transform .18s ease;
+}
+
+/* стан: увімкнено */
+.toggle__input:checked + .toggle__track{
+  background:var(--sw-on);
+}
+.toggle__input:checked + .toggle__track::after{
+  transform: translateX(calc(var(--w) - var(--h)));
+}
+
+/* фокус-клавіатура */
+.toggle__input:focus-visible + .toggle__track{
+  box-shadow: 0 0 0 4px var(--sw-ring);
+}
+
+/* вимкнена */
+.toggle[aria-disabled="true"],
+.toggle__input:disabled ~ *{
+  opacity:.6; cursor:not-allowed;
+}

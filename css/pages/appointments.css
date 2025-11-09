@@ -1,0 +1,116 @@
+/* from appt-inline-styles */
+.btn-group .btn { padding:8px 10px; border:1px solid #ddd; background:#fff; border-radius:8px; cursor:pointer; }
+    .btn-group { display:inline-flex; gap:6px; }
+    .btn-group .btn.active { background:#f0f0f0; }
+
+
+/* from appt-status-dot-styles */
+.status-dot { width: 10px; height: 10px; border-radius: 50%; display:inline-block; flex:0 0 10px; }
+    .status-scheduled { background:#F59E0B; }
+    .status-done      { background:#10B981; }
+    .status-canceled  { background:#EF4444; }
+
+
+/* from appt-status-filters-styles */
+.status-filters input{transform:translateY(1px)}
+
+.appointments-page .list{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.appointments-page .list li{
+  display:grid;
+  grid-template-columns:minmax(0, 1.5fr) minmax(0, 1fr);
+  gap:20px;
+  align-items:center;
+  padding:20px;
+  border-radius:18px;
+  background:#fff;
+  border:1px solid #e9eef5;
+  box-shadow:0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);
+}
+.appointment-item__main{
+  display:flex;
+  gap:16px;
+  align-items:flex-start;
+}
+.appointment-item__identity{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.appointment-item__avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.appointment-item__details{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.appointment-item__service{
+  font-size:15px;
+  color:#111827;
+}
+.appointment-item__client{
+  color:#6b7280;
+  font-size:14px;
+}
+.appointment-item__status{
+  width:max-content;
+}
+.appointment-item__actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.appointment-item__paid{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:14px;
+  color:#374151;
+}
+.appointment-item__price{
+  min-width:90px;
+  text-align:right;
+  font-weight:600;
+  color:#111827;
+}
+
+@media (max-width:1024px){
+  .appointments-page .list li{
+    grid-template-columns:1fr;
+    align-items:flex-start;
+  }
+  .appointment-item__actions{
+    width:100%;
+    justify-content:flex-start;
+  }
+}
+@media (max-width:640px){
+  .appointment-item__actions{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .appointment-item__paid,
+  .appointment-item__price,
+  .appointment-item__actions button{
+    width:100%;
+    display:block;
+  }
+  .appointment-item__price{
+    text-align:left;
+  }
+  .appointment-item__actions button{
+    justify-content:center;
+  }
+}

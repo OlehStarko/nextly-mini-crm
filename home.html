@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini CRM — домашня</title>
+  <link rel="stylesheet" href="./css/styles.css" />
+  <style>
+    .hero { max-width: 960px; margin: 60px auto; text-align:center; }
+    .hero h1 { font-size: 40px; margin-bottom: 12px; }
+    .hero p { color:#555; }
+    .cta { margin-top: 18px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  </style>
+</head>
+<body>
+  <main class="hero">
+    <h1>Mini CRM для індивідуальних майстрів</h1>
+    <p>Записи, клієнти, оплати — просто і швидко. Дані зберігаються у вашому обліковому записі.</p>
+    <div class="cta">
+      <a class="btn" href="./index.html#auth">Увійти</a>
+      <a class="btn" href="./index.html#auth">Зареєструватися</a>
+    </div>
+  </main>
+  <script type="module">
+  import { fb } from './js/db/firebase.js';
+  const { auth, onAuthStateChanged } = await fb();
+  onAuthStateChanged(auth, (user) => {
+    if (user) location.href = './index.html#/clients'; // або #/appointments
+  });
+</script>
+</body>
+</html>

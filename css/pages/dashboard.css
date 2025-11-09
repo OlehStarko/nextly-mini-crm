@@ -1,0 +1,375 @@
+html { scrollbar-gutter: auto !important; }
+/* обмежуємося простором сторінки */
+.page--dashboard .h3{ font-size:18px; font-weight:700; margin:16px 0 10px; }
+
+/* ============ KPI блоки ============ */
+.page--dashboard .kpi-wrap{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:16px;
+  margin:24px 0 32px;
+}
+@media (max-width:1024px){ .page--dashboard .kpi-wrap{ grid-template-columns:repeat(2,1fr); } }
+@media (max-width:640px){  .page--dashboard .kpi-wrap{ grid-template-columns:1fr; } }
+
+.page--dashboard .kpi-pill{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:24px; min-height:96px;
+  border-radius:16px; background:#fff; border:1px solid #e9eef5;
+  box-shadow:0 8px 24px rgba(49,75,109,.12), 0 2px 6px rgba(49,75,109,.06);
+}
+.page--dashboard .kpi-left{ display:flex; align-items:center; gap:24px; min-width:0; }
+.page--dashboard .kpi-ico{ width:32px; height:32px; display:grid; place-items:center; flex:0 0 auto; }
+.page--dashboard .kpi-label{ font-weight:600; color:#384152; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.page--dashboard .kpi-value{ font-weight:700; color:#111827; margin-left:12px; }
+
+/* ============ Карти та рядки списку ============ */
+.page--dashboard .card{
+  background:#fff; border:1px solid #eee; border-radius:16px; padding:24px;
+  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  transition:box-shadow .3s ease, transform .2s ease;
+}
+
+.page--dashboard .row{
+  display:flex; justify-content:space-between; align-items:flex-start;
+  border:1px solid #eee; border-radius:16px; padding:16px 24px;
+  background:#fff; transition:background .2s ease;
+}
+@media (max-width:560px){  .page--dashboard .row{ flex-direction: column; align-items: flex-start; gap: 24px;} }
+.page--dashboard .row:hover{ background:#EFF7FA; }
+.page--dashboard .row small{ color:#666; }
+
+.page--dashboard .row-left{ display:flex; flex-direction:row; }
+.page--dashboard .row-left-info{ display:flex; flex-direction:column; margin-left:10px; 
+align-items: flex-start}
+
+/* ============ Статуси ============ */
+.page--dashboard .status-dot{ width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px; vertical-align:middle; }
+.page--dashboard .scheduled{ background:#fb923c; } /* оранжевий */
+.page--dashboard .done{      background:#22c55e; } /* зелений */
+.page--dashboard .canceled{  background:#ef4444; } /* червоний */
+
+/* ============ Бейджі платежів (dashboard-варіанти) ============ */
+.page--dashboard .badge{ display:inline-block; padding:5px 10px; border-radius:18px; font-size:12px; font-weight:500; color:#fff; }
+.page--dashboard .paid{   background:#59a85d; }
+.page--dashboard .unpaid{ background:#ec6060; }
+.page--dashboard .badge-soft{ color:#1f2937; background:#eef2ff; }
+.page--dashboard .paid-soft{  background:#e8f5e9; color:#1b5e20; }
+.page--dashboard .unpaid-soft{ background:#ec6060; color:#fff; }
+
+/* ============ Calendar Strip ============ */
+.page--dashboard .calendar-strip {
+  background:#fff; border:1px solid #eee; border-radius:16px;
+  padding:24px;  box-shadow:0 2px 8px rgba(0,0,0,.06);
+  display:flex; flex-direction:column; gap:8px; overflow:hidden; margin-bottom:32px;
+}
+.page--dashboard .calendar-strip__head {
+  display:flex; align-items:center; justify-content:space-between;
+}
+.page--dashboard .calendar-strip__title {
+  font-weight:700; font-size:14px; color:#111827;
+}
+.page--dashboard .calendar-strip__nav { display:flex; gap:12px; align-items:center; }
+
+.page--dashboard .cal-icon{
+  width:100%; height:100%;
+  display:block;
+  pointer-events:none;
+}
+.page--dashboard .calendar-strip__btn{
+  position:relative;
+  width:32px; height:32px;
+  background:none; border:none; padding:0; margin:0;
+  cursor:pointer; border-radius:8px;
+  display:inline-flex; align-items:center; justify-content:center;
+  color:#171717;
+  transition:background .2s, transform .2s, color .2s;
+}
+.page--dashboard .calendar-strip__btn:hover{ background:#171717; color:#fff; transform:scale(1.05); }
+.page--dashboard .calendar-strip__btn:active{ transform:scale(0.95); }
+
+/* --- Контейнер смужки днів --- */
+.page--dashboard .calendar-strip__days{
+  display:flex; flex-wrap:nowrap; align-items:center; gap:12px;
+  padding:12px 24px;
+  overflow-x:auto; overflow-y:visible;
+  scroll-behavior:auto; -webkit-overflow-scrolling:auto;
+  cursor:grab; overscroll-behavior:contain;
+}
+.page--dashboard .calendar-strip__days.dragging{ cursor:grabbing; user-select:none; }
+.page--dashboard .calendar-strip__days::-webkit-scrollbar{ display:none; }
+.page--dashboard .calendar-strip__days{ scrollbar-width: none; }
+
+/* бейдж не перехоплює кліки */
+.page--dashboard .cal-day__count{ pointer-events:none; }
+
+/* --- Картка дня --- */
+.page--dashboard .cal-day{
+  position:relative; overflow:visible;
+  flex:0 0 auto; width:64px; height:64px;
+  border-radius:16px; border:1px solid #e5e7eb; background:#f7fafc;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transition: background .2s, color .2s, border-color .2s;
+  pointer-events:auto; -webkit-tap-highlight-color:transparent;
+  user-select:none; outline:none;
+}
+.page--dashboard .cal-day:hover { transform:translateY(-1px); background:#171717; }
+.page--dashboard .cal-day:hover .cal-day__num { color:#fff; }
+.page--dashboard .cal-day__dow { font-size:10px; color:#6b7280; text-transform:uppercase; letter-spacing:.2px; }
+.page--dashboard .cal-day__num { font-size:16px; font-weight:700; color:#111827; line-height:1; }
+
+.page--dashboard .cal-day--today   { border-color:#111; }
+.page--dashboard .cal-day--active  { background:#111; border-color:#111; box-shadow:0 6px 18px rgba(0,0,0,.08); }
+.page--dashboard .cal-day--active .cal-day__dow,
+.page--dashboard .cal-day--active .cal-day__num,
+.page--dashboard .cal-day--active .cal-day__count { color:#fff; background:transparent; }
+
+/* бейдж кількості */
+.page--dashboard .cal-day__count{
+  position:absolute; top:-7px; right:-7px;
+  width:22px; height:22px; border-radius:50%;
+  background:#34A853; color:#fff; font-weight:600; font-size:12px;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 6px rgba(0,0,0,.2);
+  z-index:3;
+}
+.page--dashboard .cal-day--active .cal-day__count{ background:#34A853 !important; color:#fff !important; }
+
+/* дрібні правки специфічно для Dashboard */
+.page--dashboard #todayList { min-height:80px; }
+
+/* якщо потрібно інвертувати png-іконку в кнопці редагування всередині Dashboard */
+.page--dashboard .btn--icon img {
+  filter: invert(1);
+  width: 18px;
+  height: 18px;
+}
+.client{
+  font-size: 18px;
+  font-weight: 400;
+}
+.title_name{
+  margin-bottom: 16px;
+}
+
+.num{
+  font-size: 18px;
+  font-weight: 700;
+
+}
+
+.btn_dash{
+  appearance:none;
+  padding:14px 18px;
+  border-radius:16px;
+  background-color:#1B1B1B;
+  border:1px solid #e9eef5;
+  cursor:pointer;
+}
+@media (max-width:560px){  .btn_dash{ margin-top: 24px;} }
+
+/* === Modal close button (у стилі кнопки бургера) === */
+.badge_price{
+  display: flex;
+  gap: 16px;
+align-items: center;
+margin-top: 16px;
+}
+
+
+
+
+/* ==== Modal form: tidy inputs/selects ====. */
+/* ====== DIALOG ====== */
+.page--dashboard .modal__dialog {
+  position: relative;
+  background: #fff;
+  border-radius: 20px;
+  width: min(640px, 94%);   /* не ширше екрана на мобільному */
+  max-height: 80dvh;        /* 🔹 максимум 80% висоти екрана */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;         /* приховує скрол поза контентом */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  -webkit-overflow-scrolling: touch;
+}
+
+.page--dashboard .modal__header {
+  padding: 24px;
+  border-bottom: 1px solid #eef2f6;
+}
+
+/* ====== BODY (вміст модалки) ====== */
+.page--dashboard .modal__body {
+  flex: 1 1 auto;
+  overflow-y: auto;           /* скролиться лише всередині */
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
+  display:grid;
+  gap:16px;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+}
+
+@media (min-width: 700px) {
+  .page--dashboard .modal__body {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+  }
+}
+
+/* label above field */
+.page--dashboard .modal__body > label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* inputs/selects look */
+.page--dashboard .modal__body input[type="text"],
+.page--dashboard .modal__body input[type="number"],
+.page--dashboard .modal__body input[type="date"],
+.page--dashboard .modal__body input[type="time"],
+.page--dashboard .modal__body select {
+  appearance: none;
+  width: 100%;
+  height: 48px;
+  padding: 10px 14px;
+  font-size: 16px;
+  color: #0f172a;
+  background: #fff;
+  border: 1px solid #e6eef6;
+  border-radius: 16px;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  box-shadow: inset 0 1px 0 rgba(16,24,40,.03);
+}
+.page--dashboard .modal__body input:focus,
+.page--dashboard .modal__body select:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 4px rgba(147,197,253,.35);
+}
+
+/* subtle hover */
+.page--dashboard .modal__body input:hover,
+.page--dashboard .modal__body select:hover {
+  border-color: #dbe7f3;
+}
+
+/* date/time & number fixes */
+.page--dashboard .modal__body input[type="number"]::-webkit-outer-spin-button,
+.page--dashboard .modal__body input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.page--dashboard .modal__body input[type="number"] { -moz-appearance: textfield; }
+
+/* select arrow */
+.page--dashboard .modal__body select {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%236b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px 18px;
+  padding-right: 40px;
+}
+
+/* make some fields span full width on desktop */
+#editClientSel, #editServiceSel { grid-column: 1 / -1; }
+
+/* footer */
+.page--dashboard .modal__actions {
+  padding: 14px 24px;
+  border-top: 1px solid #eef2f6;
+  background: #fff;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+}
+/* ====== BACKDROP ====== */
+.page--dashboard .modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;     /* центр по вертикалі */
+  justify-content: center; /* центр по горизонталі */
+  background: rgba(0, 0, 0, 0.35);  /* напівпрозорий фон */
+  overflow-y: auto;        /* якщо модалка дуже висока */
+  -webkit-overflow-scrolling: touch;
+}
+  .page--dashboard .modal{ display:none; }
+.page--dashboard .modal::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: -1; /* щоб фон не перекривав модалку */
+}
+.page--dashboard .modal__actions .btn:hover { opacity: .92; }
+.page--dashboard .modal__actions .btn:active { transform: translateY(1px); }
+
+
+
+/* ====== Забороняємо скрол сторінки під модалкою ====== */
+.page--dashboard body.modal-open {
+  overflow: hidden;
+}
+/* Кнопки/хедер не «стрибають» */
+/* ====== HEADER і FOOTER не скроляться ====== */
+.page--dashboard .modal__header,
+.page--dashboard .modal__footer {
+  flex: 0 0 auto;
+  padding: 16px 20px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+}
+/* Fallback для браузерів без dvh (деякі Safari/старі Chrome) */
+@supports not (height: 100dvh) {
+  .page--dashboard .modal { min-height: -webkit-fill-available; }
+  .page--dashboard .modal__dialog { max-height: calc(-webkit-fill-available - 32px); }
+}
+
+
+.page--dashboard .modal__footer {
+  border-top: 1px solid #eee;
+  border-bottom: none;
+}
+
+/* ====== Додатково: для малих екранів підняти трохи вище ====== */
+@media (max-width: 480px) {
+  .page--dashboard .modal {
+    align-items: flex-end; /* щоб модалка “виїжджала знизу” */
+  }
+
+  .page--dashboard .modal__dialog {
+    border-radius: 20px 20px 0 0;
+    width: 100%;
+    max-height: 80dvh;
+  }
+}
+
+    /* modal */
+  
+    .page--dashboard .modal.open{ display:block; }
+    .page--dashboard .modal__backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.4); }
+    .page--dashboard .modal__dialog{ position:relative; max-width:520px; margin:12vh auto; background:#fff; border-radius:12px; overflow:hidden; }
+    .page--dashboard .modal__header{ display:flex; align-items:center; justify-content:space-between; padding:24px; border-bottom:1px solid #eee; }
+    .page--dashboard .modal__title{ font-weight:700; }
+    .page--dashboard .modal__body{  display:grid; gap:12px; }
+    .page--dashboard .modal__actions{ padding:24px 24px; border-top:1px solid #eee; display:flex; gap:10px; justify-content:flex-start; }
+    .page--dashboard .modal__close{ border:none; background:transparent; font-size:18px; cursor:pointer; }
+    .grid{ display:grid; gap:12px; grid-template-columns:repeat(2, minmax(0,1fr)); }
+    @media (max-width:720px){ .grid{ grid-template-columns:1fr; } }
+
+.page--dashboard #editApptModal .modal__dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  width: min(640px, calc(100vw - 32px));
+  max-height: min(90dvh, calc(100vh - 32px));
+}
+
+@media (max-width: 560px) {
+  .page--dashboard #editApptModal .modal__dialog {
+    width: calc(100vw - 24px);
+  }
+}
